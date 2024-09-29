@@ -1,21 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CBadge } from '@coreui/react-pro';
 
 const Table = ({ data, columnas }) => {
-  const [hoveredRow, setHoveredRow] = useState(null); // Estado para identificar la fila sobre la que se pasa el cursor
-
-  const handleMouseEnter = (rowId) => {
-    setHoveredRow(rowId); // Cambia el estado cuando se pasa el cursor por una fila
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredRow(null); // Restablece el estado cuando el cursor sale de la fila
-  };
-
   return (
-    <div style={{ maxHeight: '600px', overflow: 'hidden',boxShadow: 'rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px',   }}>
-      <CTable responsive style={{ overflow: 'hidden' }}> 
-        {/* Encabezado fijo */}
+    <div style={{ maxHeight: '600px', overflow: 'hidden', boxShadow: 'rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px' }}>
+      <CTable responsive style={{ overflow: 'hidden' }}>
         <CTableHead>
           <CTableRow>
             {columnas.map(col => (
@@ -32,7 +21,7 @@ const Table = ({ data, columnas }) => {
                   paddingLeft: '10px',
                   paddingTop: '2px',
                   paddingBottom: '2px',
-                  width: '100px', 
+                  width: '100px',
                   whiteSpace: 'nowrap',
                 }}
               >
@@ -43,35 +32,35 @@ const Table = ({ data, columnas }) => {
         </CTableHead>
       </CTable>
 
-      <div style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'auto' }}> {/* Agregado overflowX para scroll horizontal */}
+      <div style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'auto' }}>
         <CTable>
           <CTableBody>
             {data.length > 0 ? (
-              data.map(item => (
-                <CTableRow
-                  key={item.id_usuario}
-                  style={{
-                    cursor: 'pointer',                     
-                  }}
-                  onMouseEnter={() => handleMouseEnter(item.id_usuario)}
-                  onMouseLeave={handleMouseLeave}
-                >
-                  {columnas.map((col, index) => (
-                    <CTableDataCell
-                      key={`${item.id_usuario}-${col.key}-${index}`}
-                      style={{ padding: '1px', transition: 'background:red', width: '100px' }} // Alineación consistente
-                    >
-                      {col.badge ? (
-                        <CBadge color={item[col.key] ? 'success' : 'danger'}>
-                          {item[col.key] ? 'Activo' : 'Inactivo'}
-                        </CBadge>
-                      ) : (
-                        item[col.key]
-                      )}
-                    </CTableDataCell>
-                  ))}
-                </CTableRow>
-              ))
+              data.map(row => {
+                return (
+                  <CTableRow
+                    key={row.key} // Asegúrate de que 'id_usuario' es único
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {columnas.map(col => {
+                      return (
+                        <CTableDataCell
+                          key={col.key} // Asignar clave única a cada celda
+                          style={{ padding: '1px', width: '100px' }}
+                        >
+                          {col.badge ? (
+                            <CBadge color={row[col.key] ? 'success' : 'danger'}>
+                              {row[col.key] ? 'Activo' : 'Inactivo'}
+                            </CBadge>
+                          ) : (
+                            row[col.key]
+                          )}
+                        </CTableDataCell>
+                      );
+                    })}
+                  </CTableRow>
+                );
+              })
             ) : (
               <CTableRow>
                 <CTableDataCell colSpan={columnas.length}>No hay datos disponibles</CTableDataCell>

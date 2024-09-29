@@ -5,55 +5,49 @@ import {
   CModalTitle,
   CModalBody,
   CModalFooter,
-
-  CButton
-
+  CButton,
 } from '@coreui/react-pro';
 
-const Modal = ({ visible, onClose, onSubmit, campos, titulo }) => { 
-  const [nuevoElemento, setNuevoElemento] = useState({}); 
+const Modal = ({ visible, onClose, onSubmit, campos, titulo }) => {
+  const [nuevoElemento, setNuevoElemento] = useState({});
+
   const handleInputChange = (e, campo) => {
-    setNuevoElemento({...nuevoElemento, [campo.name]: e.target.value}); 
+    const { value } = e.target;
+    setNuevoElemento(prev => ({ ...prev, [campo.name]: value }));
   };
 
   return (
     <CModal visible={visible} onClose={onClose}>
       <CModalHeader onClose={onClose}>
-        <CModalTitle>{titulo}</CModalTitle> 
+        <CModalTitle>{titulo}</CModalTitle>
       </CModalHeader>
-
       <CModalBody>
-        {campos.map((campo, index) => {
+        {campos.map(campo => {
           const commonProps = {
-            onChange: (e) => handleInputChange(e, campo),
-            type: campo.type,
+            onChange: e => handleInputChange(e, campo),
             placeholder: campo.placeholder,
           };
 
-          if (campo.type === 'select') {
-            return (
-              <select key={index} {...commonProps}> {/* {{ edit_1 }} Mover key aquí */}
-                {campo.options.map((option, optionIndex) => (
-                  <option key={optionIndex} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            );
-          }
-
-          return (
-            <input 
-              key={index} // {{ edit_2 }} Mover key aquí
-              {...commonProps} 
-            />
+          return campo.type === 'select' ? (
+            <select key={campo.key} {...commonProps}>
+              {campo.options.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input key={campo.key} type={campo.type} {...commonProps} />
           );
         })}
       </CModalBody>
-
       <CModalFooter>
-        <CButton color="secondary" onClick={onClose}>Cancelar</CButton>
-        <CButton color="primary" onClick={() => onSubmit(nuevoElemento)}>Agregar</CButton> {/* Cambiado a 'nuevoElemento' */}
+        <CButton color="secondary" onClick={onClose}>
+          Cancelar
+        </CButton>
+        <CButton color="primary" onClick={() => onSubmit(nuevoElemento)}>
+          Agregar
+        </CButton>
       </CModalFooter>
     </CModal>
   );
