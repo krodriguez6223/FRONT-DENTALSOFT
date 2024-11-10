@@ -7,7 +7,7 @@ import routes from '../routes'
 
 const AppContent = () => {
   return (
-    <div style={{ marginLeft: '25px', marginRight: '25px' }}>
+    <div style={{ marginLeft: '25px', marginRight: '25px'}}>
      
       <Suspense fallback={<CSpinner color="primary" />}>
         <Routes>
