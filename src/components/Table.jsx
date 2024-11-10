@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CBadge } from '@coreui/react-pro';
+import ModalView from '../components/ModalView'
+const Table = ({ data, columnas, dataRenderer }) => {
+  const [hoveredRowKey, setHoveredRowKey] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedData, setSelectedData] = useState(null);
 
-const Table = ({ data, columnas }) => {
+  const handleDoubleClick = (row) => {
+    setSelectedData(row);
+    setModalVisible(true);
+  };
+  
   return (
-    <div style={{ maxHeight: '600px', overflow: 'hidden', boxShadow: 'rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px' }}>
+    <div>
       <CTable responsive style={{ overflow: 'hidden' }}>
         <CTableHead>
           <CTableRow>
@@ -19,11 +28,12 @@ const Table = ({ data, columnas }) => {
                   borderTop: '5px solid #30394e',
                   paddingRight: '10px',
                   paddingLeft: '10px',
-                  paddingTop: '2px',
-                  paddingBottom: '2px',
+                  paddingTop: '3px',
+                  paddingBottom: '3px',
                   width: '100px',
                   whiteSpace: 'nowrap',
                 }}
+                className={'TableHeaderCell'}
               >
                 {col.label}
               </CTableHeaderCell>
@@ -39,14 +49,22 @@ const Table = ({ data, columnas }) => {
               data.map(row => {
                 return (
                   <CTableRow
-                    key={row.key} // Asegúrate de que 'id_usuario' es único
-                    style={{ cursor: 'pointer' }}
+                    key={row.key} 
+                    style={{
+                      cursor: 'pointer',
+                      transform: hoveredRowKey === row.key ? 'translateY(-2px)' : 'translateY(0)', 
+                      backgroundColor: hoveredRowKey === row.key ? '#c1c1c1' : undefined, 
+                      color: hoveredRowKey === row.key ? '#30394e' : undefined, 
+                    }} 
+                    onMouseEnter={() => setHoveredRowKey(row.key)} 
+                    onMouseLeave={() => setHoveredRowKey(null)} 
+                    onDoubleClick={() => handleDoubleClick(row)} // Agregar evento de doble clic
                   >
                     {columnas.map(col => {
                       return (
                         <CTableDataCell
-                          key={col.key} // Asignar clave única a cada celda
-                          style={{ padding: '1px', width: '100px' }}
+                          key={col.key} 
+                          style={{ padding: '0.1px', width: '100px' }}
                         >
                           {col.badge ? (
                             <CBadge color={row[col.key] ? 'success' : 'danger'}>
@@ -69,6 +87,12 @@ const Table = ({ data, columnas }) => {
           </CTableBody>
         </CTable>
       </div>
+      <ModalView 
+         visible={modalVisible} 
+         onClose={() => setModalVisible(false)} 
+         data={selectedData} 
+         dataRenderer={dataRenderer}
+      />
     </div>
   );
 };

@@ -1,1 +1,38 @@
-// Here you can add other styles
+
+.table:hover {
+    --cui-table-bg: none !important; // Cambiado a color azul en hover
+}
+
+$verde: #0A564C;
+$vedeClaro:#2CD5C7;
+
+.fondoVerde{
+    background-color: $verde;
+}
+.fondoVerdeClaro{
+    background-color: $vedeClaro;
+}
+
+.colorVerde{
+    color: $verde;
+}
+.colorVerdeClaro{
+    color: $vedeClaro
+}
+
+.login-image {
+    background-image: url('src/assets/images/loginPortada.png'); /* Ruta a tu imagen */
+    background-size: cover;      /* Asegura que la imagen cubra todo el espacio */
+    background-position: center; /* Centra la imagen */
+    height: 100vh;               /* Ocupa toda la altura de la pantalla */
+  }
+  
+  /* Ajustes para dispositivos móviles */
+  @media (max-width: 767.98px) {
+    .login-image {
+      display: none; /* Oculta la imagen en pantallas pequeñas */
+    }
+  }
+   
+
+

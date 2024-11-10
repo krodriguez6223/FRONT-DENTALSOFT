@@ -14,12 +14,13 @@ import {
 } from '@coreui/react-pro'
 
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
-
+import { cilLockLocked, cilUser, cilArrowCircleLeft } from '@coreui/icons'
+import Notificaciones, { mostrarNotificacion } from '../../../components/Notification'
 
 const Login = () => {
   const [nombreUsuario, setNombreUsuario] = useState('');
   const [contrasenia, setContrasenia] = useState('');
+  const [mostrarContrasenia, setMostrarContrasenia] = useState(false);
 
   useEffect(() => {
    
@@ -33,7 +34,7 @@ const Login = () => {
 
     // Validación de campos vacíos
     if (!nombreUsuario.trim() || !contrasenia.trim()) {
-      alert("Por favor, completa todos los campos.");
+      mostrarNotificacion('Por favor, completa todos los campos', 'error')
       return;
     }
 
@@ -49,10 +50,9 @@ const Login = () => {
         body: JSON.stringify({ nombre_usuario: nombreUsuario.trim(), contrasenia: contrasenia.trim() }),
       });
 
-      // Manejo de respuesta no OK
       if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(errorData || 'Error en la respuesta del servidor');
+        const errorData = await response.json(); // Cambiado a JSON
+        throw new Error(errorData.error || 'Error en la respuesta del servidor'); // Usar el mensaje de error del JSON
       }
 
       const contentType = response.headers.get("content-type");
@@ -66,78 +66,75 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Error al iniciar sesión:', error.message);
-      alert(`Error: ${error.message}`);
+      mostrarNotificacion(`${error.message}`, 'error'); 
     }
   };
 
 
-
   return (
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-column flex-md-row align-items-center">
-      <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={8} lg={6}>
-            <CCardGroup>
-              <CCard className="p-4">
-                <CCardBody>
-                  <CForm onSubmit={handleSubmit}>
-                    <h1>Login</h1>
-                    <p className="text-body-secondary">Inicia sesión con tu usuario y contraseña</p>
-                    <CInputGroup className="mb-3">
-                      <CInputGroupText>
-                        <CIcon icon={cilUser} />
-                      </CInputGroupText>
-                      <CFormInput
-                        name="nombre_usuario"
-                        placeholder="Usuario"
-                        autoComplete="nombre_usuario"
-                        value={nombreUsuario}
-                        onChange={(e) => setNombreUsuario(e.target.value)}
-                      />
-                    </CInputGroup>
-                    <CInputGroup className="mb-4">
-                      <CInputGroupText>
-                        <CIcon icon={cilLockLocked} />
-                      </CInputGroupText>
-                      <CFormInput
-                        name="contrasenia"
-                        type="password"
-                        placeholder="Contraseña"
-                        autoComplete="current-contrasenia"
-                        value={contrasenia}
-                        onChange={(e) => setContrasenia(e.target.value)}
-                      />
-                    </CInputGroup>
-                    <CRow>
-                      <CCol xs={12}>
-                        <CButton
-                          color="primary"
-                          className="px-4 w-100"
-                          type='submit'
-                          value="Iniciar Sesión"
+    <div className="container-fluid vh-100">
+      <div className="row h-100">
+        <div className="col-md-6 d-none d-md-block login-image"></div>
+
+        <div className="col-12 col-md-6 d-flex align-items-center justify-content-center">
+          <CContainer>
+            <CRow className="justify-content-center">
+              <CCol md={8}>
+                <CCard className="p-4">
+                  <CCardBody>
+                    <CForm onSubmit={handleSubmit}>
+                      <h1>Login</h1>
+                      <p className="text-body-secondary">
+                        Inicia sesión con tu usuario y contraseña
+                      </p>
+                      <CInputGroup className="mb-3">
+                        <CInputGroupText>
+                          <CIcon icon={cilUser} />
+                        </CInputGroupText>
+                        <CFormInput
+                          name="nombre_usuario"
+                          placeholder="Usuario"
+                          autoComplete="nombre_usuario"
+                          value={nombreUsuario}
+                          onChange={(e) => setNombreUsuario(e.target.value)}
+                        />
+                      </CInputGroup>
+
+                      {/* Input de contraseña con botón para mostrar/ocultar */}
+                      <CInputGroup className="mb-4">
+                        <CInputGroupText>
+                          <CIcon icon={cilLockLocked} />
+                        </CInputGroupText>
+                        <CFormInput
+                          type={mostrarContrasenia ? 'text' : 'password'}
+                          name="contrasenia"
+                          placeholder="Contraseña"
+                          autoComplete="current-contrasenia"
+                          value={contrasenia}
+                          onChange={(e) => setContrasenia(e.target.value)}
+                        />
+                        <CInputGroupText
+                          onClick={() => setMostrarContrasenia(!mostrarContrasenia)}
+                          style={{ cursor: 'pointer' }}
                         >
-                          Iniciar Sesión
-                        </CButton>
-                      </CCol>
+                          <CIcon icon={mostrarContrasenia ? cilArrowCircleLeft : cilArrowCircleLeft} />
+                        </CInputGroupText>
+                      </CInputGroup>
 
-                    </CRow>
-                  </CForm>
-                </CCardBody>
-              </CCard>
-              <CCard className="text-white bg-primary py-5 d-none d-md-block text-center" style={{ width: '100%', minWidth: '300px' }}>
-                <CCardBody className="text-center">
-                  <div>
-
-
-                  </div>
-                </CCardBody>
-              </CCard>
-            </CCardGroup>
-          </CCol>
-        </CRow>
-      </CContainer>
+                      <CButton color="primary" className="w-100" type="submit">
+                        Iniciar Sesión
+                      </CButton>
+                    </CForm>
+                  </CCardBody>
+                </CCard>
+              </CCol>
+            </CRow>
+          </CContainer>
+          <Notificaciones />
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
