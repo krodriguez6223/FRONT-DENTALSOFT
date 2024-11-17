@@ -35,10 +35,11 @@ const Usuarios = () => {
   const fetchUsuarios = async () => {
     setIsLoading(true);
     try {
-      const { data } = await axios.get(`/users`); 
+      const { data } = await axios.get(`/users/usr`); 
       setUsuarios(data);
     } catch (error) {
-      mostrarNotificacion('Error al cargar usuarios: ' + error.message, 'error'); 
+      const  message = error.response.data.message 
+      mostrarNotificacion('Error al cargar usuarios: ' + message, 'error'); 
     } finally {
       setIsLoading(false);
     }
