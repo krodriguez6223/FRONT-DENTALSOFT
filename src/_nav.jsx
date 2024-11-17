@@ -26,7 +26,7 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Roles',
-        to: '/roles',
+        to: '/administracion/roles',
       },
 
     ],
