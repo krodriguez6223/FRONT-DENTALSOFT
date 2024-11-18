@@ -28,6 +28,11 @@ const _nav = [
         name: 'Roles',
         to: '/administracion/roles',
       },
+      {
+        component: CNavItem,
+        name: 'Modulos',
+        to: '/administracion/modulos',
+      },
 
     ],
   },

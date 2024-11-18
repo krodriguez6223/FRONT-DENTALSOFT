@@ -65,7 +65,6 @@ const Roles = () => {
   };
   const handleSubmit = async (nuevoRol) => {
     const rolCompleto = { ...formData, ...nuevoRol }; 
-    console.log(rolCompleto)
     setIsLoading(true); 
     try {
       let response;
@@ -73,7 +72,7 @@ const Roles = () => {
       if (isEdit) {
 
         // Actualizar rol existente
-        response = await axios.put(`/roles/rol${formData.id_rol}`, rolCompleto);
+        response = await axios.put(`/roles/rol/${formData.id_rol}`, rolCompleto);
         if (response.status === 200) {
           setRoles(prevRoles => 
             prevRoles.map(rol => 

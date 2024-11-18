@@ -80,7 +80,7 @@ const Usuarios = () => {
           usuarioCompleto.contrasenia = formData.contrasenia; 
         }
         // Actualizar usuario existente
-        response = await axios.put(`/users/${formData.id_usuario}`, usuarioCompleto);
+        response = await axios.put(`/users/usr/${formData.id_usuario}`, usuarioCompleto);
         if (response.status === 200) {
           setUsuarios(prevUsuarios => 
             prevUsuarios.map(usuario => 
@@ -99,7 +99,7 @@ const Usuarios = () => {
         }
         
         // Agregar nuevo usuario
-        response = await axios.post(`/users`, usuarioCompleto);
+        response = await axios.post(`/users/usr/`, usuarioCompleto);
         if (response.status === 201) {
           setUsuarios(prevUsuarios => [...prevUsuarios, response.data]);
           mostrarNotificacion(response.data.message, 'success');
@@ -211,14 +211,10 @@ const Usuarios = () => {
     );
   };
   
-  
-  
-  
-
   return (
     <CCol xs={12}>
       <BarraAcciones 
-        botones={{ agregar: true, editar: false, actualizar: true, imprimir: false, descargar: false, compartir: false, filtrar: false }} 
+        botones={{ agregar: true, editar: false, actualizar: true, imprimir: true, descargar: true, compartir: true, filtrar: true }} 
         onAgregarClick={handleAgregarClick} 
         onActualizarClick={handleActualizarDatos} 
 

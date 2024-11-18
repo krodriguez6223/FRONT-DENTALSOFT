@@ -4,6 +4,7 @@ import { CIcon } from '@coreui/icons-react';
 import { cilArrowLeft, cilArrowRight } from '@coreui/icons';
 
 const PaginationAndSearch = ({
+  display,
   searchTerm,
   setSearchTerm,
   usuariosPorPagina,
@@ -27,8 +28,8 @@ const PaginationAndSearch = ({
 
   return (
     <div>
-      <div className="row" style={{ marginTop: '10px'}}>
-        <div className="col-1">
+      <div className="row" style={{ marginTop: '8px', marginBottom: display == true ? '5px' : '0px'}}>
+        <div className="col-1" style={{ display: display == true ? 'none' : 'normal'}}>
           <select
             id="usuariosPorPagina"
             value={usuariosPorPagina}
@@ -43,14 +44,15 @@ const PaginationAndSearch = ({
         <div className="col-10">
           <input
             type="text"
-            placeholder="Buscar usuarios..."
+            placeholder="Buscar..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="form-control"
           />
         </div>
-        <div className='col-1' style={{ display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
+        <div className='col-1' style={{ display: display == true ? 'none' : 'flex', justifyContent: 'end', alignItems: 'center' }}>
           <ReactPaginate
+            
             previousLabel={<><CIcon icon={cilArrowLeft} /></>}
             nextLabel={<><CIcon icon={cilArrowRight} /></>}
             breakLabel={'...'}
@@ -58,7 +60,7 @@ const PaginationAndSearch = ({
             marginPagesDisplayed={2}
             pageRangeDisplayed={5}
             onPageChange={handlePageClick}
-            containerClassName={'pagination justify-content-start align-items-center '}
+            containerClassName={'pagination justify-content-start align-items-center mb-2 '}
             activeClassName={'active '}
             pageClassName={'page-item '}
             pageLinkClassName={'page-link bg-secondary text-white'}
