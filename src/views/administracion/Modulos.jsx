@@ -16,25 +16,38 @@ const Modulos = () => {
 
     });
 
-    const [roles, setRoles] = useState([]);
+    const [modulos, setModulos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
-    const [rolesPorPagina, setRolesPorPagina] = useState(100);
+    const [modulosPorPagina, setmodulosPorPagina] = useState(100);
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedRold, setSelectedRolId] = useState(null);
+    const [selecttedModuloId, setSelectedModuloId] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState(initialFormData());
+    const [dataSubmodulos, setDataSubmodulos] = useState([]);
 
-
-    const fetchRoles = async () => {
+    const fetchModulos = async () => {
         setIsLoading(true);
         try {
-            const { data } = await axios.get(`/roles/rol`);
-            setRoles(data);
+            const { data } = await axios.get(`/modulos/mod`);
+            setModulos(data);
         } catch (error) {
             const message = error.response.data.message
-            mostrarNotificacion('Error al cargar roles: ' + message, 'error');
+            mostrarNotificacion('Error al cargar modulos: ' + message, 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    const fetchModulosbySubmodulo = async (id ) => {
+        setIsLoading(true);
+        setDataSubmodulos([]);
+        try {
+            const {data}  = await axios.get(`/modulos/mod/${id}`);
+            setDataSubmodulos(data)
+        } catch (error) {
+            const message = error.response.data.message
+            mostrarNotificacion('Este modulo no tiene submodulos asocidos ', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -42,66 +55,66 @@ const Modulos = () => {
 
 
     useEffect(() => {
-        fetchRoles();
+        fetchModulos();
     }, []);
 
     useEffect(() => {
         setCurrentPage(0);
     }, [searchTerm]);
 
-    const filteredRoles = roles.filter(rol => {
-        const nombre = `${rol.nombre || ''}`.toLowerCase();
+    const filteredModulos = modulos.filter(modulo => {
+        const nombre = `${modulo.nombre || ''}`.toLowerCase();
         return nombre.includes(searchTerm.toLowerCase()) ||
-            (rol.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
+            (modulo.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
     });
 
-    const paginatedRoles = filteredRoles.slice(
-        currentPage * rolesPorPagina,
-        (currentPage + 1) * rolesPorPagina
+    const paginatedModulos = filteredModulos.slice(
+        currentPage * modulosPorPagina,
+        (currentPage + 1) * modulosPorPagina
     );
 
     const handleCloseModal = () => {
         setModalVisible(false);
         setIsEdit(false);
     };
-    const handleSubmit = async (nuevoRol) => {
-        const rolCompleto = { ...formData, ...nuevoRol };
+    const handleSubmit = async (nuevoModulo) => {
+        const moduloCompleto = { ...formData, ...nuevoModulo };
         setIsLoading(true);
         try {
             let response;
 
             if (isEdit) {
 
-                // Actualizar rol existente
-                response = await axios.put(`/roles/rol/${formData.id_rol}`, rolCompleto);
+                // Actualizar modulos existente
+                response = await axios.put(`/modulos/mod/${formData.id}`, moduloCompleto);
                 if (response.status === 200) {
-                    setRoles(prevRoles =>
-                        prevRoles.map(rol =>
-                            rol.id_rol === formData.id_rol ? response.data : rol
+                    setModulos(prevModulos =>
+                        prevModulos.map(modulo =>
+                            modulo.id === formData.id ? response.data : modulo
                         )
                     );
                     mostrarNotificacion(response.data.message, 'success');
                 } else {
-                    mostrarNotificacion('Error al actualizar rol: ' + (response.data.error || response.statusText), 'error');
+                    mostrarNotificacion('Error al actualizar modulo: ' + (response.data.error || response.statusText), 'error');
                 }
             } else {
-                const existingRol = roles.find(rol => rol.nombre === nuevoRol.nombre);
-                if (existingRol) {
-                    mostrarNotificacion('El nombre de rol ya está en uso.', 'error');
+                const existingModulo = modulos.find(modulo => modulo.nombre === nuevoModulo.nombre);
+                if (existingModulo) {
+                    mostrarNotificacion('El nombre de modulo ya está en uso.', 'error');
                     return;
                 }
 
-                // Agregar nuevo rol
-                response = await axios.post(`/roles/rol`, rolCompleto);
+                // Agregar nuevo modulos
+                response = await axios.post(`/modulos/mod`, moduloCompleto);
                 if (response.status === 201) {
-                    setRoles(prevRoles => [...prevRoles, response.data]);
+                    setModulos(prevModulos => [...prevModulos, response.data]);
                     mostrarNotificacion(response.data.message, 'success');
                 } else {
-                    mostrarNotificacion('Error al agregar rol: ' + (response.data.error || response.statusText), 'error');
+                    mostrarNotificacion('Error al agregar modulo: ' + (response.data.error || response.statusText), 'error');
                 }
             }
             handleCloseModal();
-            fetchRoles();
+            fetchModulos();
         } catch (error) {
             mostrarNotificacion('Error al procesar la solicitud: ' + (error.response ? error.response.data.error : error.message), 'error');
         } finally {
@@ -115,56 +128,37 @@ const Modulos = () => {
     };
     const handleActualizarDatos = async () => {
         setIsLoading(true);
-        await fetchRoles();
+        await fetchModulos();
         setIsLoading(false);
     };
 
     const handleRolSelect = (rol) => {
         const {
             nombre,
+            descripcion,
+            ruta,
             estado,
-            id_rol,
+            id,
         } = rol;
 
         setFormData({
             nombre,
+            descripcion,
+            ruta,
             estado,
-            id_rol
+            id,
         });
-        setSelectedRolId(id_rol);
+        setSelectedModuloId(id);
         setModalVisible(true);
         setIsEdit(true);
     }
-
-    //mostra infromacion del rol en el modal
-    const dataRenderer = (data) => {
-        if (!data) {
-            return <p>Cargando...</p>;
-        }
-
-        const {
-            id_rol,
-            nombre
-        } = data;
-
-        return (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <tbody>
-                    <tr>
-                        <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Código</th>
-                        <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{id_rol ? id_rol : ''}</td>
-                        <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Nombre rol</th>
-                        <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{nombre ? nombre : ''}</td>
-                    </tr>
-                </tbody>
-            </table>
-        );
+       const handleViewSubmodules = (modulo) => {
+        fetchModulosbySubmodulo(modulo.id); // Llama a la función para obtener submódulos
+        setSelectedModuloId(modulo.id); // Establece el módulo seleccionado
     };
-
 
     return (
         <CCol xs={12}>
-
 
             <Modal
                 visible={modalVisible}
@@ -172,9 +166,11 @@ const Modulos = () => {
                 onSubmit={handleSubmit}
                 col="col-md-6"
                 tamaño="lg"
-                titulo={formData.id_rol ? "Editar Rol" : "Nuevo Rol"}
+                titulo={formData.id_rol ? "Editar Modulo" : "Nuevo Modulo"}
                 campos={[
-                    { name: 'nombre', placeholder: 'Nombre de rol', type: 'text', key: 'nombre', required: true, pattern: /^[a-zA-Z0-9]+$/ },
+                    { name: 'nombre', placeholder: 'Nombre de modulo', type: 'text', key: 'nombre', required: true, pattern: /^[a-zA-Z0-9 ]+$/ },
+                    { name: 'descripcion', placeholder: 'Descripción', type: 'text', key: 'descripcion', required: true, pattern: /^[a-zA-Z0-9 ]+$/ },
+                    { name: 'ruta', placeholder: 'Ruta', type: 'text', key: 'ruta', required: true, pattern: /^[a-zA-Z0-9 /]+$/ },
                     {
                         name: 'estado', placeholder: 'Estado', type: 'select', key: 'estado', options: [
                             { value: true, label: 'Activo' },
@@ -198,47 +194,69 @@ const Modulos = () => {
                             <PaginationAndSearch
                                 searchTerm={searchTerm}
                                 setSearchTerm={setSearchTerm}
-                                rolesPorPagina={rolesPorPagina}
-                                setRolesPorPagina={setRolesPorPagina}
+                                modulosPorPagina={modulosPorPagina}
+                                setmodulosPorPagina={setmodulosPorPagina}
                                 currentPage={currentPage}
                                 setCurrentPage={setCurrentPage}
-                                totalRoles={filteredRoles.length}
+                                totalRoles={filteredModulos.length}
                                 display={true}
                             />
                         </CCardHeader>
                     </CCard>
                     <CCard className="mb-4" style={{ boxShadow: '0 0 10px 0 rgba(0, 0, 0, .5)' }}>
                         <CCardBody>
-                            <small style={{ fontSize: '16px' }}>Lista de Roles</small>
+                            <small style={{ fontSize: '16px' }}>Lista de Modulos</small>
                             <Table
-                                data={paginatedRoles.map(rol => ({
-                                    ...rol,
-                                    key: rol.id_rol,
+                                data={paginatedModulos.map(modulo => ({
+                                    ...modulo,
+                                    key: modulo.id,
                                     actions: (
+                                        <div>
                                         <button
-                                            onMouseEnter={() => setSelectedRolId(rol.id_rol)}
-                                            onMouseLeave={() => setSelectedRolId(null)}
+                                            onMouseEnter={() => setSelectedModuloId(modulo.id)}
+                                            onMouseLeave={() => setSelectedModuloId(null)}
                                             className='btn '
-                                            onClick={() => handleRolSelect(rol)}>
+                                            onClick={() => handleRolSelect(modulo)}
+                                            //onClick={() => handleViewSubmodules(modulo)}
+                                            >
+  
                                             <CIcon
                                                 icon={cilPencil}
                                                 style={{
-                                                    color: selectedRold === rol.id_rol ? 'white' : 'black',
-                                                    transform: selectedRold === rol.id_rol ? 'scale(1.3)' : 'scale(1)',
+                                                    color: selecttedModuloId === modulo.id ? 'white' : 'black',
+                                                    transform: selecttedModuloId === modulo.id ? 'scale(1.3)' : 'scale(1)',
                                                     transition: 'transform 0.2s ease',
                                                 }}
                                             />
                                         </button>
+                                        <button
+                                            onMouseEnter={() => setSelectedModuloId(modulo.id)}
+                                            onMouseLeave={() => setSelectedModuloId(null)}
+                                            className='btn '
+                                            onClick={() => handleViewSubmodules(modulo)}
+                                            >
+  
+                                            <CIcon
+                                                icon={cilPencil}
+                                                style={{
+                                                    color: selecttedModuloId === modulo.id ? 'white' : 'black',
+                                                    transform: selecttedModuloId === modulo.id ? 'scale(1.3)' : 'scale(1)',
+                                                    transition: 'transform 0.2s ease',
+                                                }}
+                                            />
+                                        </button>
+                                        </div>
+                                        
                                     )
 
                                 }))}
                                 columnas={[
                                     { key: 'actions', label: 'Acciones' },
-                                    { key: 'id_rol', label: 'Codigo' },
-                                    { key: 'nombre', label: 'Nombre de rol' },
+                                    { key: 'id', label: 'Codigo' },
+                                    { key: 'nombre', label: 'Modulos' },
                                     { key: 'estado', label: 'Estado', badge: true }
                                 ]}
-                                dataRenderer={dataRenderer}
+
                             />
                         </CCardBody>
                     </CCard>
@@ -250,39 +268,40 @@ const Modulos = () => {
                         onActualizarClick={handleActualizarDatos}
 
                     />
-                     <CCard className='mb-3'>
+                    <CCard className='mb-3'>
                         <CCardHeader className='pt-0 pb-0' style={{ boxShadow: '0 0 10px 0 rgba(0, 0, 0, .5)' }}>
                             <PaginationAndSearch
                                 searchTerm={searchTerm}
                                 setSearchTerm={setSearchTerm}
-                                rolesPorPagina={rolesPorPagina}
-                                setRolesPorPagina={setRolesPorPagina}
+                                modulosPorPagina={modulosPorPagina}
+                                setmodulosPorPagina={setmodulosPorPagina}
                                 currentPage={currentPage}
                                 setCurrentPage={setCurrentPage}
-                                totalRoles={filteredRoles.length}
+                                totalRoles={filteredModulos.length}
                                 display={true}
-                                
                             />
                         </CCardHeader>
                     </CCard>
                     <CCard className="mb-4" style={{ boxShadow: '0 0 10px 0 rgba(0, 0, 0, .5)' }}>
                         <CCardBody>
-                            <small style={{ fontSize: '16px' }}>Lista de Roles</small>
-                            <Table
-                                data={paginatedRoles.map(rol => ({
-                                    ...rol,
-                                    key: rol.id_rol,
+                            <small style={{ fontSize: '16px' }}>Lista de Submodulos</small>
+                               <Table
+                                data={dataSubmodulos.map(modulo => ({
+                                    ...modulo,
+                                    key: modulo.id,
                                     actions: (
                                         <button
-                                            onMouseEnter={() => setSelectedRolId(rol.id_rol)}
-                                            onMouseLeave={() => setSelectedRolId(null)}
+                                            onMouseEnter={() => setSelectedModuloId(modulo.id)}
+                                            onMouseLeave={() => setSelectedModuloId(null)}
                                             className='btn '
-                                            onClick={() => handleRolSelect(rol)}>
+                                           // onClick={() => handleRolSelect(modulo)}
+                                           // onClick={() => handleViewSubmodules(modulo)}
+                                            >
                                             <CIcon
                                                 icon={cilPencil}
                                                 style={{
-                                                    color: selectedRold === rol.id_rol ? 'white' : 'black',
-                                                    transform: selectedRold === rol.id_rol ? 'scale(1.3)' : 'scale(1)',
+                                                    color: selecttedModuloId === modulo.id ? 'white' : 'black',
+                                                    transform: selecttedModuloId === modulo.id ? 'scale(1.3)' : 'scale(1)',
                                                     transition: 'transform 0.2s ease',
                                                 }}
                                             />
@@ -292,15 +311,15 @@ const Modulos = () => {
                                 }))}
                                 columnas={[
                                     { key: 'actions', label: 'Acciones' },
-                                    { key: 'id_rol', label: 'Codigo' },
-                                    { key: 'nombre', label: 'Nombre de rol' },
+                                    { key: 'id', label: 'Codigo' },
+                                    { key: 'nombre', label: 'Modulos' },
                                     { key: 'estado', label: 'Estado', badge: true }
                                 ]}
-                                dataRenderer={dataRenderer}
+                               
                             />
+                           
                         </CCardBody>
                     </CCard>
-
                 </div>
             </div>
             <Notificaciones />
