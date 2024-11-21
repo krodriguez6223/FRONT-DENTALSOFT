@@ -28,13 +28,13 @@ const PaginationAndSearch = ({
 
   return (
     <div>
-      <div className="row" style={{ marginTop: '8px', marginBottom: display == true ? '5px' : '0px'}}>
-        <div className="col-1" style={{ display: display == true ? 'none' : 'normal'}}>
+      <div className="row" style={{ marginTop: '8px', marginBottom: display == true ? '5px' : '0px' }}>
+        <div className="col-1" style={{ display: display == true ? 'none' : 'normal' }}>
           <select
             id="usuariosPorPagina"
             value={usuariosPorPagina}
             onChange={handleUsuariosPorPaginaChange} // Cambiado aquí
-            className="form-control"
+            className="form-control custom-select"
           >
             <option value={100}>100</option>
             <option value={200}>200</option>
@@ -52,7 +52,6 @@ const PaginationAndSearch = ({
         </div>
         <div className='col-1' style={{ display: display == true ? 'none' : 'flex', justifyContent: 'end', alignItems: 'center' }}>
           <ReactPaginate
-            
             previousLabel={<><CIcon icon={cilArrowLeft} /></>}
             nextLabel={<><CIcon icon={cilArrowRight} /></>}
             breakLabel={'...'}
@@ -60,16 +59,16 @@ const PaginationAndSearch = ({
             marginPagesDisplayed={2}
             pageRangeDisplayed={5}
             onPageChange={handlePageClick}
-            containerClassName={'pagination justify-content-start align-items-center mb-2 '}
-            activeClassName={'active '}
-            pageClassName={'page-item '}
-            pageLinkClassName={'page-link bg-secondary text-white'}
-            previousClassName={'page-item'}
-            previousLinkClassName={'page-link'}
-            nextClassName={'page-item'}
-            nextLinkClassName={'page-link'}
-            breakClassName={'page-item'}
-            breakLinkClassName={'page-link'}
+            containerClassName={'pagination justify-content-start align-items-center mb-2'}
+            activeClassName={'active'}
+            pageClassName={'page-item custom-page-item'}
+            pageLinkClassName={'page-link custom-page-link'}
+            previousClassName={'page-item custom-prev-item'}
+            previousLinkClassName={'page-link custom-prev-link'}
+            nextClassName={'page-item custom-next-item'}
+            nextLinkClassName={'page-link custom-next-link'}
+            breakClassName={'page-item custom-break-item'}
+            breakLinkClassName={'page-link custom-break-link'}
           />
         </div>
       </div>

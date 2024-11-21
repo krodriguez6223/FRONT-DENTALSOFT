@@ -170,7 +170,7 @@ const Roles = () => {
 
       />
       <CCard className='mb-3'>
-        <CCardHeader className='pt-0 pb-0' style={{boxShadow: '0 0 10px 0 rgba(0, 0, 0, .5)'} }>
+        <CCardHeader className='pt-0 pb-0' style={{boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px'} }>
           <PaginationAndSearch
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
@@ -200,9 +200,9 @@ const Roles = () => {
        formData={formData}
        isEdit={isEdit}
       />
-      <CCard className="mb-4" style={{boxShadow: '0 0 10px 0 rgba(0, 0, 0, .5)'} }>
+      <CCard className="mb-4" style={{boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px'} }>
         <CCardBody>
-          <small style={{ fontSize: '16px' }}>Lista de Roles</small>
+          <small style={{ fontSize: '20px', padding: '8px', background: 'red', borderRadius: '10px', marginBottom:'15px' }}>Lista de Roles</small>
           <Table 
             data={paginatedRoles.map(rol => ({
               ...rol,

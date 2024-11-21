@@ -26,8 +26,9 @@ const AppSidebar = () => {
 
   return (
     <CSidebar
-      className="bg-dark-gradient border-end"
+      className="bg-dark-gradient "
       colorScheme="dark"
+      style={{background:'#03708c'}}
       position="fixed"
       unfoldable={unfoldable}
       visible={sidebarShow}
@@ -35,7 +36,7 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
     >
-      <CSidebarHeader className="border-bottom" >
+      <CSidebarHeader >
         <CSidebarBrand as={NavLink} to="/">
           <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />

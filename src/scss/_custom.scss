@@ -33,6 +33,60 @@ $vedeClaro:#2CD5C7;
       display: none; /* Oculta la imagen en pantallas pequeñas */
     }
   }
+///colres de botenes de paginacion
+/* Botones generales */
+.custom-page-link {
+  background-color: #f8fafc; /* Azul */
+  color: rgb(19, 18, 18);
+ // border: 1px solid #007bff;
+  border-radius: 4px;
+  padding: 5px 10px;
+}
+
+.custom-page-link:hover {
+  background-color: #fbb00a; /* Azul oscuro */
+  color: white;
+}
+
+/* Botón activo */
+.active .custom-page-link {
+  background-color: #0381a1; /* Verde */
+  color: white;
+  font-weight: bold;
+}
+
+/* Botones de navegación */
+.custom-prev-link,
+.custom-next-link {
+  background-color: #0381a1; /* Gris */
+  color: white;
+  border: 1px solid #0381a1;
+}
+
+.custom-prev-link:hover,
+.custom-next-link:hover {
+  background-color: #049ac0; /* Gris oscuro */
+  color: white;
+}
+
+/* Elipsis */
+.custom-break-link {
+  background-color: transparent;
+  color: #0381a1;
+  cursor: default;
+}
+/* footer*/
+/* Estilos del footer */
+
+
+
+
+  // color secundario: azul: #05a6ce 
+  //color secundario: verde: #158384
+  //color terciario: verde calro:#99d3d9
+  //color cuarto: amarillo: #e5ce90
+  //color fuente:  gris: #b2b2b2
+
    
 
 

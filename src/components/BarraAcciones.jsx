@@ -26,11 +26,13 @@ const BarraAcciones = ({ botones, onAgregarClick, onEditarClick, onActualizarCli
         style={{ 
           transition: 'background-color 0.3s, color 0.3s', 
           transform: hoveredKey === key ? 'translateY(-2px)' : 'translateY(0)', 
-          backgroundColor: hoveredKey === key ? '#35b7d4' : undefined, 
-          color: hoveredKey === key ? '#30394e' : undefined,
+          color: hoveredKey === key ? '#fbba06' : undefined,
           width:'40px',
           height: '40px', 
-          margin:'2px'
+          margin:'2px',
+          background:'#0381a1',
+          borderColor:'#0381a1',
+          
         }}
         onMouseEnter={() => setHoveredKey(key)} 
         onMouseLeave={() => setHoveredKey(null)} 
@@ -47,13 +49,15 @@ const BarraAcciones = ({ botones, onAgregarClick, onEditarClick, onActualizarCli
           actions[key]?.(); 
         }} 
       >
-        <CIcon icon={icon} /> 
+        <CIcon
+         size= 'lg' 
+         icon={icon} /> 
       </CButton>
     )
   );
 
   return (
-    <div style={{ marginBottom: '7px', backgroundColor: '#30394e', padding: '3px', borderRadius: '6px', boxShadow: 'rgba(0, 0, 0, 0.07) 0px 1px 2px, rgba(0, 0, 0, 0.07) 0px 2px 4px, rgba(0, 0, 0, 0.07) 0px 4px 8px, rgba(0, 0, 0, 0.07) 0px 8px 16px, rgba(0, 0, 0, 0.07) 0px 16px 32px, rgba(0, 0, 0, 0.07) 0px 32px 64px' }}>
+    <div style={{ marginBottom: '7px', backgroundColor: '#0381a1', padding: '3px', borderRadius: '6px' }}>
       {buttonConfig.map(renderButton)} 
     </div>
   );

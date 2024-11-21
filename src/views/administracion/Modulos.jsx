@@ -190,7 +190,7 @@ const Modulos = () => {
 
                     />
                     <CCard className='mb-3'>
-                        <CCardHeader className='pt-0 pb-0' style={{ boxShadow: '0 0 10px 0 rgba(0, 0, 0, .5)' }}>
+                        <CCardHeader className='pt-0 pb-0' style={{ boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px' }}>
                             <PaginationAndSearch
                                 searchTerm={searchTerm}
                                 setSearchTerm={setSearchTerm}
@@ -203,7 +203,7 @@ const Modulos = () => {
                             />
                         </CCardHeader>
                     </CCard>
-                    <CCard className="mb-4" style={{ boxShadow: '0 0 10px 0 rgba(0, 0, 0, .5)' }}>
+                    <CCard className="mb-4" style={{ boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px' }}>
                         <CCardBody>
                             <small style={{ fontSize: '16px' }}>Lista de Modulos</small>
                             <Table
@@ -269,7 +269,7 @@ const Modulos = () => {
 
                     />
                     <CCard className='mb-3'>
-                        <CCardHeader className='pt-0 pb-0' style={{ boxShadow: '0 0 10px 0 rgba(0, 0, 0, .5)' }}>
+                        <CCardHeader className='pt-0 pb-0' style={{ boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px' }}>
                             <PaginationAndSearch
                                 searchTerm={searchTerm}
                                 setSearchTerm={setSearchTerm}
@@ -282,7 +282,7 @@ const Modulos = () => {
                             />
                         </CCardHeader>
                     </CCard>
-                    <CCard className="mb-4" style={{ boxShadow: '0 0 10px 0 rgba(0, 0, 0, .5)' }}>
+                    <CCard className="mb-4" style={{ boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px' }}>
                         <CCardBody>
                             <small style={{ fontSize: '16px' }}>Lista de Submodulos</small>
                                <Table
