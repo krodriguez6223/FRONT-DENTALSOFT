@@ -13,11 +13,10 @@ const Notificaciones = () => {
           color: '#000',
           borderRadius: '5px',
           padding: '10px 20px',
-          margin: '10px',
+          marginBottom: '60px',
           zIndex: '9999',
           transition: 'all 0.3s ease-in-out',
-          boxShadow: '0 4px 8px rgba(8, 8, 8, 1), -1px 6px 40px -10px rgba(99, 101, 144, 1)', // Se mantiene el boxShadow
-
+          boxShadow: 'rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px',
         },
       }}
     />
@@ -25,10 +24,18 @@ const Notificaciones = () => {
 };
 
 export const mostrarNotificacion = (mensaje, tipo) => {
+  const estiloNotificacion = {
+    borderLeft: `5px solid ${tipo === 'error' ? '#dc3545' : '#20c997'}`,
+  };
+
   if (tipo === 'error') {
-    toast.error(mensaje);
+    toast.error(mensaje, {
+      style: estiloNotificacion,
+    });
   } else {
-    toast.success(mensaje);
+    toast.success(mensaje, {
+      style: estiloNotificacion,
+    });
   }
 };
 

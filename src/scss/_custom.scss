@@ -76,7 +76,90 @@ $vedeClaro:#2CD5C7;
   cursor: default;
 }
 /* footer*/
-/* Estilos del footer */
+/*estilos de componente Table*/
+// General table styles
+.table-container {
+  max-height: 500px;
+  overflow: auto;
+  position: relative;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+// Header styles
+.table thead th {
+  position: sticky;
+  top: 0;
+  background: #0381a1;
+  color: #c1d8da;
+  font-weight: 400;
+  padding: 8px;
+  white-space: nowrap;
+  font-size: 17px;
+  text-align: left;
+  z-index: 10;
+  border-bottom: 2px solid #ddd;
+}
+
+// Row styles
+.table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.table tbody tr.selected {
+  background-color: #ffcccc;
+}
+
+.table tbody tr.hovered {
+  background-color: #dbdfe6;
+  transform: translateY(-2px);
+  color: #323a49;
+}
+
+.table tbody tr td {
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  color: #6b7785;
+}
+
+// Badge styles
+.badge {
+  padding: 1px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.active {
+    color: #216e4e;
+    background-color: #baf3db;
+  }
+
+  &.inactive {
+    color: #ca2800;
+    background-color: #ffd5d2;
+  }
+}
+
+// No data styles
+.no-data {
+  text-align: center;
+  padding: 20px;
+
+  img {
+    width: 150px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 16px;
+    color: #6b7785;
+  }
+}
+
 
 
 
