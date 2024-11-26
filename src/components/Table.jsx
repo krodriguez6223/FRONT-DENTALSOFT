@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ModalView from '../components/ModalView';
+import Submodulos from '../views/administracion/Submodulos';
 
-const Table = ({ data, columnas, dataRenderer }) => {
+const Table = ({ data, columnas, dataRenderer, onRowSelect }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [hoveredRowKey, setHoveredRowKey] = useState(null);
   const [selectedRowKey, setSelectedRowKey] = useState(null);
 
-  // Ref para detectar clics fuera de la tabla
+  console.log(onRowSelect)
+  
   const tableRef = useRef(null);
 
   const handleDoubleClick = (row) => {
@@ -17,6 +19,7 @@ const Table = ({ data, columnas, dataRenderer }) => {
 
   const handleRowClick = (key) => {
     setSelectedRowKey(key);
+    if (onRowSelect) onRowSelect(key);
   };
 
   const handleClickOutside = (event) => {
@@ -38,7 +41,6 @@ const Table = ({ data, columnas, dataRenderer }) => {
       style={{ maxHeight: '500px', overflow: 'auto', position: 'relative' }}
     >
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        {/* Renderizar <thead> solo si hay datos */}
         {data.length > 0 && (
           <thead>
             <tr>
@@ -51,7 +53,7 @@ const Table = ({ data, columnas, dataRenderer }) => {
                     background: '#0381a1',
                     color: '#c1d8da',
                     fontWeight: '400',
-                    padding: '8px',
+                    padding: '3px',
                     whiteSpace: 'nowrap',
                     fontSize: '17px',
                     textAlign: 'left',
@@ -71,17 +73,13 @@ const Table = ({ data, columnas, dataRenderer }) => {
               <tr
                 key={row.key}
                 style={{
-                  cursor: 'pointer',
-                  backgroundColor:
+                  cursor: 'pointer', backgroundColor:
                     selectedRowKey === row.key
                       ? '#ffcccc'
                       : hoveredRowKey === row.key
                       ? '#dbdfe6'
                       : undefined,
-                  transform:
-                    hoveredRowKey === row.key ? 'translateY(-2px)' : 'translateY(0)',
                   color: hoveredRowKey === row.key ? '#323a49' : undefined,
-                  transition: 'background-color 0.2s, transform 0.2s',
                 }}
                 onMouseEnter={() => setHoveredRowKey(row.key)}
                 onMouseLeave={() => setHoveredRowKey(null)}

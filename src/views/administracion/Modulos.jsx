@@ -7,7 +7,8 @@ import Table from '../../components/Table';
 import Notificaciones, { mostrarNotificacion } from '../../components/Notification';
 import axios from '../../conf/axiosConf';
 import CIcon from '@coreui/icons-react';
-import { cilPencil } from '@coreui/icons';
+import { cilPencil, cilList, cilTrash } from '@coreui/icons';
+import Submodulos from './Submodulos'; 
 
 const Modulos = () => {
     const initialFormData = () => ({
@@ -39,11 +40,11 @@ const Modulos = () => {
             setIsLoading(false);
         }
     };
-    const fetchModulosbySubmodulo = async (id ) => {
+    const fetchModulosbySubmodulo = async (id) => {
         setIsLoading(true);
         setDataSubmodulos([]);
         try {
-            const {data}  = await axios.get(`/modulos/mod/${id}`);
+            const { data } = await axios.get(`/modulos/mod/${id}`);
             setDataSubmodulos(data)
         } catch (error) {
             const message = error.response.data.message
@@ -152,7 +153,7 @@ const Modulos = () => {
         setModalVisible(true);
         setIsEdit(true);
     }
-       const handleViewSubmodules = (modulo) => {
+    const handleViewSubmodules = (modulo) => {
         fetchModulosbySubmodulo(modulo.id); // Llama a la función para obtener submódulos
         setSelectedModuloId(modulo.id); // Establece el módulo seleccionado
     };
@@ -182,7 +183,7 @@ const Modulos = () => {
                 isEdit={isEdit}
             />
             <div className='row'>
-                <div className='col-6'>
+                <div className='col-lg-6 col-12'>
                     <BarraAcciones
                         botones={{ agregar: true, editar: false, actualizar: true, imprimir: false, descargar: false, compartir: false, filtrar: false }}
                         onAgregarClick={handleAgregarClick}
@@ -212,42 +213,31 @@ const Modulos = () => {
                                     key: modulo.id,
                                     actions: (
                                         <div>
-                                        <button
-                                            onMouseEnter={() => setSelectedModuloId(modulo.id)}
-                                            onMouseLeave={() => setSelectedModuloId(null)}
-                                            className='btn '
-                                            onClick={() => handleRolSelect(modulo)}
-                                            //onClick={() => handleViewSubmodules(modulo)}
+                                            <button
+                                                onMouseEnter={() => setSelectedModuloId(modulo.id)}
+                                                onMouseLeave={() => setSelectedModuloId(null)}
+                                                className='btn '
+                                                onClick={() => handleRolSelect(modulo)}
                                             >
-  
-                                            <CIcon
-                                                icon={cilPencil}
-                                                style={{
-                                                    color: selecttedModuloId === modulo.id ? 'white' : 'black',
-                                                    transform: selecttedModuloId === modulo.id ? 'scale(1.3)' : 'scale(1)',
-                                                    transition: 'transform 0.2s ease',
-                                                }}
-                                            />
-                                        </button>
-                                        <button
-                                            onMouseEnter={() => setSelectedModuloId(modulo.id)}
-                                            onMouseLeave={() => setSelectedModuloId(null)}
-                                            className='btn '
-                                            onClick={() => handleViewSubmodules(modulo)}
+                                                <CIcon
+                                                    icon={cilPencil}
+                                                    className='btn-hover'
+                                                />
+                                            </button>
+                                            <button
+                                                onMouseEnter={() => setSelectedModuloId(modulo.id)}
+                                                onMouseLeave={() => setSelectedModuloId(null)}
+                                                className='btn btn-hover'
+                                                onClick={() => handleViewSubmodules(modulo)}
                                             >
-  
-                                            <CIcon
-                                                icon={cilPencil}
-                                                style={{
-                                                    color: selecttedModuloId === modulo.id ? 'white' : 'black',
-                                                    transform: selecttedModuloId === modulo.id ? 'scale(1.3)' : 'scale(1)',
-                                                    transition: 'transform 0.2s ease',
-                                                }}
-                                            />
-                                        </button>
+                                                <CIcon
+                                                    icon={cilList}
+                                                    className='btn-hover'
+                                                />
+                                            </button>
                                         </div>
-                                        
-                                    )
+
+                                    ),
 
                                 }))}
                                 columnas={[
@@ -261,7 +251,7 @@ const Modulos = () => {
                         </CCardBody>
                     </CCard>
                 </div>
-                <div className='col-6'>
+                <div className='col-lg-6 col-12'>
                     <BarraAcciones
                         botones={{ agregar: true, editar: false, actualizar: true, imprimir: false, descargar: false, compartir: false, filtrar: false }}
                         onAgregarClick={handleAgregarClick}
@@ -285,27 +275,34 @@ const Modulos = () => {
                     <CCard className="mb-4" style={{ boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px' }}>
                         <CCardBody>
                             <small style={{ fontSize: '16px' }}>Lista de Submodulos</small>
-                               <Table
+                            <Table
                                 data={dataSubmodulos.map(modulo => ({
                                     ...modulo,
                                     key: modulo.id,
                                     actions: (
+                                        <div>
+
                                         <button
                                             onMouseEnter={() => setSelectedModuloId(modulo.id)}
                                             onMouseLeave={() => setSelectedModuloId(null)}
                                             className='btn '
-                                           // onClick={() => handleRolSelect(modulo)}
-                                           // onClick={() => handleViewSubmodules(modulo)}
-                                            >
+                                        >
                                             <CIcon
                                                 icon={cilPencil}
-                                                style={{
-                                                    color: selecttedModuloId === modulo.id ? 'white' : 'black',
-                                                    transform: selecttedModuloId === modulo.id ? 'scale(1.3)' : 'scale(1)',
-                                                    transition: 'transform 0.2s ease',
-                                                }}
+                                                 className='btn-hover'                                              
                                             />
                                         </button>
+                                        <button
+                                            onMouseEnter={() => setSelectedModuloId(modulo.id)}
+                                            onMouseLeave={() => setSelectedModuloId(null)}
+                                            className='btn '
+                                        >
+                                            <CIcon
+                                                icon={cilTrash}
+                                                 className='btn-hover'                                              
+                                            />
+                                        </button>
+                                        </div>
                                     )
 
                                 }))}
@@ -315,9 +312,9 @@ const Modulos = () => {
                                     { key: 'nombre', label: 'Modulos' },
                                     { key: 'estado', label: 'Estado', badge: true }
                                 ]}
-                               
+
                             />
-                           
+
                         </CCardBody>
                     </CCard>
                 </div>
