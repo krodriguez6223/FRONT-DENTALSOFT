@@ -14,7 +14,9 @@ const Modulos = () => {
     const initialFormData = () => ({
         nombre: '',
         estado: true,
-
+        descripcion: '',
+        ruta: '',
+        modulo_id: null
     });
 
     const [modulos, setModulos] = useState([]);
@@ -27,6 +29,9 @@ const Modulos = () => {
     const [isEdit, setIsEdit] = useState(false);
     const [formData, setFormData] = useState(initialFormData());
     const [dataSubmodulos, setDataSubmodulos] = useState([]);
+    const [modalSubmoduloVisible, setModalSubmoduloVisible] = useState(false);
+    const [isEditSubmodulo, setIsEditSubmodulo] = useState(false);
+    const [submoduloFormData, setSubmoduloFormData] = useState(initialFormData());
 
     const fetchModulos = async () => {
         setIsLoading(true);
@@ -45,10 +50,11 @@ const Modulos = () => {
         setDataSubmodulos([]);
         try {
             const { data } = await axios.get(`/modulos/mod/${id}`);
+            console.log(data);
             setDataSubmodulos(data)
         } catch (error) {
             const message = error.response.data.message
-            mostrarNotificacion('Este modulo no tiene submodulos asocidos ', 'error');
+            mostrarNotificacion('Este modulo no tiene submodulos asociados ', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -134,21 +140,9 @@ const Modulos = () => {
     };
 
     const handleRolSelect = (rol) => {
-        const {
-            nombre,
-            descripcion,
-            ruta,
-            estado,
-            id,
-        } = rol;
+        const { nombre, descripcion,  ruta, estado, id,  } = rol;
 
-        setFormData({
-            nombre,
-            descripcion,
-            ruta,
-            estado,
-            id,
-        });
+        setFormData({  nombre, descripcion, ruta, estado,  id, });
         setSelectedModuloId(id);
         setModalVisible(true);
         setIsEdit(true);
@@ -156,6 +150,80 @@ const Modulos = () => {
     const handleViewSubmodules = (modulo) => {
         fetchModulosbySubmodulo(modulo.id); // Llama a la función para obtener submódulos
         setSelectedModuloId(modulo.id); // Establece el módulo seleccionado
+    };
+
+    const handleSubmitSubmodulo = async (nuevoSubmodulo) => {
+        const submoduloCompleto = { 
+            ...submoduloFormData, 
+            ...nuevoSubmodulo,
+            modulo_id:submoduloFormData.modulo_id
+        };
+        console.log(submoduloCompleto);
+        setIsLoading(true);
+        try {
+            let response;
+
+            if (isEditSubmodulo) {
+                console.log('submoduloCompleto',submoduloCompleto);
+                response = await axios.put(`/submodulos/sub/${submoduloFormData.id}`, submoduloCompleto);
+                if (response.status === 200) {
+                    mostrarNotificacion(response.data.message, 'success');
+                    fetchModulosbySubmodulo(selecttedModuloId); // Actualizar lista de submódulos
+                }
+            } else {
+                const existingSubmodulo = dataSubmodulos.find(
+                    submod => submod.nombre === nuevoSubmodulo.nombre
+                );
+                if (existingSubmodulo) {
+                    mostrarNotificacion('El nombre de submódulo ya está en uso.', 'error');
+                    return;
+                }
+
+                response = await axios.post(`/modulos/sub`, submoduloCompleto);
+                if (response.status === 201) {
+                    mostrarNotificacion(response.data.message, 'success');
+                    fetchModulosbySubmodulo(selecttedModuloId);
+                }
+            }
+            handleCloseSubmoduloModal();
+        } catch (error) {
+            console.log(error);
+            mostrarNotificacion('Error al procesar la solicitud: '  + (error.response ? error.response.data.message : error.message), 'error')
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCloseSubmoduloModal = () => {
+        setModalSubmoduloVisible(false);
+        setIsEditSubmodulo(false);
+        setSubmoduloFormData(initialFormData());
+    };
+
+    const handleAgregarSubmodulo = () => {
+        if (!selecttedModuloId) {
+            mostrarNotificacion('Por favor, seleccione un módulo primero', 'warning');
+            return;
+        }
+        setSubmoduloFormData({
+            ...initialFormData(),
+            modulo_id: selecttedModuloId
+        });
+        setModalSubmoduloVisible(true);
+    };
+
+    const handleEditSubmodulo = (submodulo) => {
+        console.log('submodulo',submodulo);
+        setSubmoduloFormData({
+            nombre: submodulo.nombre,
+            descripcion: submodulo.descripcion,
+            ruta: submodulo.ruta,
+            estado: submodulo.estado,
+            id: submodulo.id,
+            modulo_id: submodulo.modulo_id
+        });
+        setModalSubmoduloVisible(true);
+        setIsEditSubmodulo(true);
     };
 
     return (
@@ -181,6 +249,27 @@ const Modulos = () => {
                 ]}
                 formData={formData}
                 isEdit={isEdit}
+            />
+            <Modal
+                visible={modalSubmoduloVisible}
+                onClose={handleCloseSubmoduloModal}
+                onSubmit={handleSubmitSubmodulo}
+                col="col-md-6"
+                tamaño="lg"
+                titulo={isEditSubmodulo ? "Editar Submódulo" : "Nuevo Submódulo"}
+                campos={[
+                    { name: 'nombre', placeholder: 'Nombre de submódulo', type: 'text', key: 'nombre', required: true, pattern: /^[a-zA-Z0-9 ]+$/ },
+                    { name: 'descripcion', placeholder: 'Descripción', type: 'text', key: 'descripcion', required: true, pattern: /^[a-zA-Z0-9 ]+$/ },
+                    { name: 'ruta', placeholder: 'Ruta', type: 'text', key: 'ruta', required: true, pattern: /^[a-zA-Z0-9 /]+$/ },
+                    {
+                        name: 'estado', placeholder: 'Estado', type: 'select', key: 'estado', options: [
+                            { value: true, label: 'Activo' },
+                            { value: false, label: 'Inactivo' }
+                        ], required: true
+                    }
+                ]}
+                formData={submoduloFormData}
+                isEdit={isEditSubmodulo}
             />
             <div className='row'>
                 <div className='col-lg-6 col-12'>
@@ -281,30 +370,26 @@ const Modulos = () => {
                                     key: modulo.id,
                                     actions: (
                                         <div>
-
-                                        <button
-                                            onMouseEnter={() => setSelectedModuloId(modulo.id)}
-                                            onMouseLeave={() => setSelectedModuloId(null)}
-                                            className='btn '
-                                        >
-                                            <CIcon
-                                                icon={cilPencil}
-                                                 className='btn-hover'                                              
-                                            />
-                                        </button>
-                                        <button
-                                            onMouseEnter={() => setSelectedModuloId(modulo.id)}
-                                            onMouseLeave={() => setSelectedModuloId(null)}
-                                            className='btn '
-                                        >
-                                            <CIcon
-                                                icon={cilTrash}
-                                                 className='btn-hover'                                              
-                                            />
-                                        </button>
+                                            <button
+                                                onMouseEnter={() => setSelectedModuloId(modulo.id)}
+                                                onMouseLeave={() => setSelectedModuloId(null)}
+                                                className='btn'
+                                                onClick={() => handleEditSubmodulo(modulo)}
+                                            >
+                                                <CIcon icon={cilPencil} className='btn-hover' />
+                                            </button>
+                                            <button
+                                                onMouseEnter={() => setSelectedModuloId(modulo.id)}
+                                                onMouseLeave={() => setSelectedModuloId(null)}
+                                                className='btn '
+                                            >
+                                                <CIcon
+                                                    icon={cilTrash}
+                                                     className='btn-hover'                                              
+                                                />
+                                            </button>
                                         </div>
                                     )
-
                                 }))}
                                 columnas={[
                                     { key: 'actions', label: 'Acciones' },
