@@ -23,7 +23,6 @@ const Modal = ({ visible, onClose, onSubmit, campos, titulo, col, tamaño, formD
   const schema = validation(campos, isEdit);
 
   const handleInputChange = (value, campo) => {
-    console.log(value);
     const formattedValue = campo.type === 'text' ? value.toUpperCase() : value; // Convertir a mayúsculas si es texto
     setNuevoElemento(prev => ({ ...prev, [campo.name]: formattedValue }));
   };

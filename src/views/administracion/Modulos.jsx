@@ -82,6 +82,7 @@ const Modulos = () => {
         setModalVisible(false);
         setIsEdit(false);
     };
+    //agregar modulo
     const handleSubmit = async (nuevoModulo) => {
         const moduloCompleto = { ...formData, ...nuevoModulo };
         setIsLoading(true);
@@ -138,9 +139,9 @@ const Modulos = () => {
     };
 
     const handleRolSelect = (rol) => {
-        const { nombre, descripcion,  ruta, estado, id,  } = rol;
+        const { nombre, descripcion, ruta, estado, id, } = rol;
 
-        setFormData({  nombre, descripcion, ruta, estado,  id, });
+        setFormData({ nombre, descripcion, ruta, estado, id, });
         setSelectedModuloId(id);
         setModalVisible(true);
         setIsEdit(true);
@@ -151,9 +152,10 @@ const Modulos = () => {
     };
 
     const handleSubmitSubmodulo = async (nuevoSubmodulo) => {
-        const submoduloCompleto = { 
-            ...submoduloFormData, 
+        const submoduloCompleto = {
+            ...submoduloFormData,
             ...nuevoSubmodulo,
+
         };
         setIsLoading(true);
         try {
@@ -162,9 +164,10 @@ const Modulos = () => {
             if (isEditSubmodulo) {
                 response = await axios.put(`/submodulos/sub/${submoduloFormData.id}`, submoduloCompleto);
                 if (response.status === 200) {
-                    setDataSubmodulos( response.data);
+                    setDataSubmodulos(prev => [...prev, response.data]);
                     mostrarNotificacion(response.data.message, 'success');
-                  //  fetchModulosbySubmodulo(submoduloFormData.modulo_id);
+                    fetchModulosbySubmodulo(submoduloFormData.modulo_id);
+                    console.log(submoduloFormData.modulo_id);
                 }
             } else {
                 const existingSubmodulo = dataSubmodulos.find(
@@ -174,17 +177,17 @@ const Modulos = () => {
                     mostrarNotificacion('El nombre de submódulo ya está en uso.', 'error');
                     return;
                 }
-
                 response = await axios.post(`/submodulos/sub`, submoduloCompleto);
                 if (response.status === 201) {
-                    setDataSubmodulos(response.data);
+                    setDataSubmodulos(prev => [...prev, response.data]);
                     mostrarNotificacion(response.data.message, 'success');
+                    fetchModulosbySubmodulo(submoduloFormData.modulo_id);
                 }
             }
             handleCloseSubmoduloModal();
-            
+
         } catch (error) {
-            mostrarNotificacion('Error al procesar la solicitud: '  + (error.response ? error.response.data.error : error.message), 'error')
+            mostrarNotificacion('Error al procesar la solicitud: ' + (error.response ? error.response.data.error : error.message), 'error')
         } finally {
             setIsLoading(false);
         }
@@ -201,6 +204,7 @@ const Modulos = () => {
         setModalSubmoduloVisible(true);
     };
 
+
     const handleEditSubmodulo = (submodulo) => {
         setSubmoduloFormData({
             nombre: submodulo.nombre,
@@ -214,7 +218,7 @@ const Modulos = () => {
         setIsEditSubmodulo(true);
     };
 
- 
+
     return (
         <CCol xs={12}>
 
@@ -257,8 +261,8 @@ const Modulos = () => {
                         key: 'modulo_id',
                         options: modulos.map(modulo => ({ value: modulo.id, label: modulo.nombre })), // Opciones formateadas
                         required: true,
-                      },
-                      
+                    },
+
                     {
                         name: 'estado', placeholder: 'Estado', type: 'select', key: 'estado', options: [
                             { value: true, label: 'Activo' },
@@ -383,7 +387,7 @@ const Modulos = () => {
                                             >
                                                 <CIcon
                                                     icon={cilTrash}
-                                                     className='btn-hover'                                              
+                                                    className='btn-hover'
                                                 />
                                             </button>
                                         </div>
