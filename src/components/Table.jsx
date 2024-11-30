@@ -8,8 +8,7 @@ const Table = ({ data, columnas, dataRenderer, onRowSelect }) => {
   const [hoveredRowKey, setHoveredRowKey] = useState(null);
   const [selectedRowKey, setSelectedRowKey] = useState(null);
 
-  console.log(onRowSelect)
-  
+ 
   const tableRef = useRef(null);
 
   const handleDoubleClick = (row) => {

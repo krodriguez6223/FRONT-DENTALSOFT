@@ -8,7 +8,6 @@ import Notificaciones, { mostrarNotificacion } from '../../components/Notificati
 import axios from '../../conf/axiosConf';
 import CIcon from '@coreui/icons-react';
 import { cilPencil, cilList, cilTrash } from '@coreui/icons';
-import Submodulos from './Submodulos'; 
 
 const Modulos = () => {
     const initialFormData = () => ({
@@ -50,7 +49,6 @@ const Modulos = () => {
         setDataSubmodulos([]);
         try {
             const { data } = await axios.get(`/modulos/mod/${id}`);
-            console.log(data);
             setDataSubmodulos(data)
         } catch (error) {
             const message = error.response.data.message
@@ -123,7 +121,7 @@ const Modulos = () => {
             handleCloseModal();
             fetchModulos();
         } catch (error) {
-            mostrarNotificacion('Error al procesar la solicitud: ' + (error.response ? error.response.data.error : error.message), 'error');
+            mostrarNotificacion('Error al procesar la solicitudc: ' + (error.response ? error.response.data.error : error.message), 'error');
         } finally {
             setIsLoading(false);
         }
@@ -156,7 +154,7 @@ const Modulos = () => {
         const submoduloCompleto = { 
             ...submoduloFormData, 
             ...nuevoSubmodulo,
-            modulo_id:submoduloFormData.modulo_id
+            modulo_id: submoduloFormData.modulo_id
         };
         console.log(submoduloCompleto);
         setIsLoading(true);
@@ -164,11 +162,11 @@ const Modulos = () => {
             let response;
 
             if (isEditSubmodulo) {
-                console.log('submoduloCompleto',submoduloCompleto);
+                console.log('submoduloCompleto', submoduloCompleto);
                 response = await axios.put(`/submodulos/sub/${submoduloFormData.id}`, submoduloCompleto);
                 if (response.status === 200) {
                     mostrarNotificacion(response.data.message, 'success');
-                    fetchModulosbySubmodulo(selecttedModuloId); // Actualizar lista de submódulos
+                    fetchModulosbySubmodulo(submoduloFormData.modulo_id);
                 }
             } else {
                 const existingSubmodulo = dataSubmodulos.find(
@@ -179,7 +177,7 @@ const Modulos = () => {
                     return;
                 }
 
-                response = await axios.post(`/modulos/sub`, submoduloCompleto);
+                response = await axios.post(`/submodulos/sub`, submoduloCompleto);
                 if (response.status === 201) {
                     mostrarNotificacion(response.data.message, 'success');
                     fetchModulosbySubmodulo(selecttedModuloId);
@@ -188,7 +186,7 @@ const Modulos = () => {
             handleCloseSubmoduloModal();
         } catch (error) {
             console.log(error);
-            mostrarNotificacion('Error al procesar la solicitud: '  + (error.response ? error.response.data.message : error.message), 'error')
+            mostrarNotificacion('Error al procesar la solicitud: '  + (error.response ? error.response.data.error : error.message), 'error')
         } finally {
             setIsLoading(false);
         }
@@ -201,14 +199,7 @@ const Modulos = () => {
     };
 
     const handleAgregarSubmodulo = () => {
-        if (!selecttedModuloId) {
-            mostrarNotificacion('Por favor, seleccione un módulo primero', 'warning');
-            return;
-        }
-        setSubmoduloFormData({
-            ...initialFormData(),
-            modulo_id: selecttedModuloId
-        });
+        setSubmoduloFormData(initialFormData());
         setModalSubmoduloVisible(true);
     };
 
@@ -224,6 +215,14 @@ const Modulos = () => {
         });
         setModalSubmoduloVisible(true);
         setIsEditSubmodulo(true);
+    };
+
+    const handleSelectModulo = (event) => {
+        const selectedModuloId = event.target.value; // Obtén el id del módulo seleccionado
+        setSubmoduloFormData(prevState => ({
+            ...prevState,
+            modulo_id: selectedModuloId // Actualiza el estado con el id del módulo seleccionado
+        }));
     };
 
     return (
@@ -261,6 +260,10 @@ const Modulos = () => {
                     { name: 'nombre', placeholder: 'Nombre de submódulo', type: 'text', key: 'nombre', required: true, pattern: /^[a-zA-Z0-9 ]+$/ },
                     { name: 'descripcion', placeholder: 'Descripción', type: 'text', key: 'descripcion', required: true, pattern: /^[a-zA-Z0-9 ]+$/ },
                     { name: 'ruta', placeholder: 'Ruta', type: 'text', key: 'ruta', required: true, pattern: /^[a-zA-Z0-9 /]+$/ },
+                    {
+                        name: 'modulo_id', placeholder: 'Seleccionar Módulo', type: 'select', key: 'modulo_id', options: modulos.map(modulo => ({ value: modulo.id, label: modulo.nombre })), required: true,
+                        onChange: handleSelectModulo
+                    },
                     {
                         name: 'estado', placeholder: 'Estado', type: 'select', key: 'estado', options: [
                             { value: true, label: 'Activo' },
@@ -343,7 +346,7 @@ const Modulos = () => {
                 <div className='col-lg-6 col-12'>
                     <BarraAcciones
                         botones={{ agregar: true, editar: false, actualizar: true, imprimir: false, descargar: false, compartir: false, filtrar: false }}
-                        onAgregarClick={handleAgregarClick}
+                        onAgregarClick={handleAgregarSubmodulo}
                         onActualizarClick={handleActualizarDatos}
 
                     />
