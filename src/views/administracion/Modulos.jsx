@@ -154,19 +154,17 @@ const Modulos = () => {
         const submoduloCompleto = { 
             ...submoduloFormData, 
             ...nuevoSubmodulo,
-            modulo_id: submoduloFormData.modulo_id
         };
-        console.log(submoduloCompleto);
         setIsLoading(true);
         try {
             let response;
 
             if (isEditSubmodulo) {
-                console.log('submoduloCompleto', submoduloCompleto);
                 response = await axios.put(`/submodulos/sub/${submoduloFormData.id}`, submoduloCompleto);
                 if (response.status === 200) {
+                    setDataSubmodulos( response.data);
                     mostrarNotificacion(response.data.message, 'success');
-                    fetchModulosbySubmodulo(submoduloFormData.modulo_id);
+                  //  fetchModulosbySubmodulo(submoduloFormData.modulo_id);
                 }
             } else {
                 const existingSubmodulo = dataSubmodulos.find(
@@ -179,13 +177,13 @@ const Modulos = () => {
 
                 response = await axios.post(`/submodulos/sub`, submoduloCompleto);
                 if (response.status === 201) {
+                    setDataSubmodulos(response.data);
                     mostrarNotificacion(response.data.message, 'success');
-                    fetchModulosbySubmodulo(selecttedModuloId);
                 }
             }
             handleCloseSubmoduloModal();
+            
         } catch (error) {
-            console.log(error);
             mostrarNotificacion('Error al procesar la solicitud: '  + (error.response ? error.response.data.error : error.message), 'error')
         } finally {
             setIsLoading(false);
@@ -204,7 +202,6 @@ const Modulos = () => {
     };
 
     const handleEditSubmodulo = (submodulo) => {
-        console.log('submodulo',submodulo);
         setSubmoduloFormData({
             nombre: submodulo.nombre,
             descripcion: submodulo.descripcion,
@@ -217,14 +214,7 @@ const Modulos = () => {
         setIsEditSubmodulo(true);
     };
 
-    const handleSelectModulo = (event) => {
-        const selectedModuloId = event.target.value; // Obtén el id del módulo seleccionado
-        setSubmoduloFormData(prevState => ({
-            ...prevState,
-            modulo_id: selectedModuloId // Actualiza el estado con el id del módulo seleccionado
-        }));
-    };
-
+ 
     return (
         <CCol xs={12}>
 
@@ -261,9 +251,14 @@ const Modulos = () => {
                     { name: 'descripcion', placeholder: 'Descripción', type: 'text', key: 'descripcion', required: true, pattern: /^[a-zA-Z0-9 ]+$/ },
                     { name: 'ruta', placeholder: 'Ruta', type: 'text', key: 'ruta', required: true, pattern: /^[a-zA-Z0-9 /]+$/ },
                     {
-                        name: 'modulo_id', placeholder: 'Seleccionar Módulo', type: 'select', key: 'modulo_id', options: modulos.map(modulo => ({ value: modulo.id, label: modulo.nombre })), required: true,
-                        onChange: handleSelectModulo
-                    },
+                        name: 'modulo_id',
+                        placeholder: 'Seleccionar Módulo',
+                        type: 'select',
+                        key: 'modulo_id',
+                        options: modulos.map(modulo => ({ value: modulo.id, label: modulo.nombre })), // Opciones formateadas
+                        required: true,
+                      },
+                      
                     {
                         name: 'estado', placeholder: 'Estado', type: 'select', key: 'estado', options: [
                             { value: true, label: 'Activo' },
