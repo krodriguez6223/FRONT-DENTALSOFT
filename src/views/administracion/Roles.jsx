@@ -25,6 +25,7 @@ const Roles = () => {
   const [selectedRold, setSelectedRolId] = useState(null);
   const [isEdit, setIsEdit] = useState(false); 
   const [formData, setFormData] = useState(initialFormData());
+  const [permisos, setPermisos] = useState([]);
 
   const fetchRoles = async () => {
     setIsLoading(true);
@@ -38,10 +39,23 @@ const Roles = () => {
       setIsLoading(false);
     }
   };
+  const fetchPermisos = async () => {
+    setIsLoading(true);
+    try {
+      const { data } = await axios.get(`/permisos/per/${5}`); 
+      setPermisos(data);
+    } catch (error) {
+      mostrarNotificacion('Error al cargar permisos: ' + message, 'error'); 
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+console.log(permisos);
 
   useEffect(() => {
     fetchRoles();
+    fetchPermisos();
   }, []);
 
   useEffect(() => {
@@ -119,17 +133,16 @@ const Roles = () => {
   };
 
   const handleRolSelect = (rol) => {
-    const { 
-        nombre, 
-        estado, 
-        id_rol,
-    } = rol;
+    const {  nombre, estado,  id_rol, } = rol;
+    setFormData({ nombre, estado, id_rol});
+    setSelectedRolId(id_rol); 
+    setModalVisible(true); 
+    setIsEdit(true);
+  }
 
-    setFormData({ 
-      nombre,
-      estado,
-      id_rol
-    });
+  const handelePermisos = (rol) => {
+    const {  nombre, estado,  id_rol, } = rol;
+    setFormData({ nombre, estado, id_rol});
     setSelectedRolId(id_rol); 
     setModalVisible(true); 
     setIsEdit(true);
@@ -140,12 +153,8 @@ const Roles = () => {
     if (!data) {
       return <p>Cargando...</p>; 
     }
-  
-    const {
-      id_rol,
-      nombre
-    } = data;
-  
+    const { id_rol, nombre } = data;
+
     return (
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <tbody>
@@ -160,7 +169,6 @@ const Roles = () => {
     );
   };
   
-
   return (
     <CCol xs={12}>
       <BarraAcciones 
@@ -202,26 +210,29 @@ const Roles = () => {
       />
       <CCard className="mb-4" style={{boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px'} }>
         <CCardBody>
-          <small style={{ fontSize: '20px', padding: '8px', background: 'red', borderRadius: '10px', marginBottom:'15px' }}>Lista de Roles</small>
+          <small style={{ fontSize: '20px', padding: '8px' }}>Lista de Roles</small>
           <Table 
             data={paginatedRoles.map(rol => ({
               ...rol,
               key: rol.id_rol,
               actions: (
+                <div>
                 <button
                    onMouseEnter={() => setSelectedRolId(rol.id_rol)} 
                    onMouseLeave={() => setSelectedRolId(null)} 
                    className='btn ' 
                    onClick={() => handleRolSelect(rol)}>
-                   <CIcon 
-                    icon={cilPencil} 
-                    style={{ 
-                      color: selectedRold === rol.id_rol ? 'white' : 'black', 
-                      transform: selectedRold === rol.id_rol ? 'scale(1.3)' : 'scale(1)', 
-                      transition: 'transform 0.2s ease',                                        
-                    }} 
-                    /> 
-                </button> 
+                   <CIcon icon={cilPencil}  className='btn-hover' /> 
+                </button>
+                <button
+                   onMouseEnter={() => setSelectedRolId(rol.id_rol)} 
+                   onMouseLeave={() => setSelectedRolId(null)} 
+                   className='btn' 
+                   onClick={() => handleRolSelect(rol)}>
+                   <CIcon  icon={cilPencil}  className='btn-hover'/> 
+                </button>    
+                </div>
+             
               )
               
             }))} 

@@ -31,7 +31,9 @@ const Modulos = () => {
     const [modalSubmoduloVisible, setModalSubmoduloVisible] = useState(false);
     const [isEditSubmodulo, setIsEditSubmodulo] = useState(false);
     const [submoduloFormData, setSubmoduloFormData] = useState(initialFormData());
+    const [searchTermSubmodulos, setSearchTermSubmodulos] = useState('');
 
+    console.log(dataSubmodulos);
     const fetchModulos = async () => {
         setIsLoading(true);
         try {
@@ -51,32 +53,37 @@ const Modulos = () => {
             const { data } = await axios.get(`/modulos/mod/${id}`);
             setDataSubmodulos(data)
         } catch (error) {
-            const message = error.response.data.message
-            mostrarNotificacion('Este modulo no tiene submodulos asociados ', 'error');
+            mostrarNotificacion('Error al cargar submodulos: ' + (error.response ? error.response.data.error : error.message), 'error');
         } finally {
             setIsLoading(false);
         }
     };
 
-
     useEffect(() => {
         fetchModulos();
-    }, []);
-
-    useEffect(() => {
         setCurrentPage(0);
     }, [searchTerm]);
 
-    const filteredModulos = modulos.filter(modulo => {
-        const nombre = `${modulo.nombre || ''}`.toLowerCase();
-        return nombre.includes(searchTerm.toLowerCase()) ||
-            (modulo.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
-    });
 
-    const paginatedModulos = filteredModulos.slice(
-        currentPage * modulosPorPagina,
-        (currentPage + 1) * modulosPorPagina
-    );
+    const filteredItems = (items, searchTerm) => {
+        return items.filter(item => {
+            const nombre = `${item.nombre || ''}`.toLowerCase();
+            return nombre.includes(searchTerm.toLowerCase());
+        });
+    };
+
+    const filteredModulos = filteredItems(modulos, searchTerm);
+    const filteredSubmodulos = filteredItems(dataSubmodulos, searchTermSubmodulos);
+
+    const paginateItems = (items) => {
+        return items.slice(
+            currentPage * modulosPorPagina,
+            (currentPage + 1) * modulosPorPagina
+        );
+    };
+
+    const paginatedModulos = paginateItems(filteredModulos);
+    const paginatedSubmodulos = paginateItems(filteredSubmodulos);
 
     const handleCloseModal = () => {
         setModalVisible(false);
@@ -87,8 +94,7 @@ const Modulos = () => {
         const moduloCompleto = { ...formData, ...nuevoModulo };
         setIsLoading(true);
         try {
-            let response;
-
+            let response
             if (isEdit) {
 
                 // Actualizar modulos existente
@@ -147,10 +153,10 @@ const Modulos = () => {
         setIsEdit(true);
     }
     const handleViewSubmodules = (modulo) => {
-        fetchModulosbySubmodulo(modulo.id); // Llama a la función para obtener submódulos
-        setSelectedModuloId(modulo.id); // Establece el módulo seleccionado
+        fetchModulosbySubmodulo(modulo.id); 
+        setSelectedModuloId(modulo.id);
     };
-
+//agregar submodulo
     const handleSubmitSubmodulo = async (nuevoSubmodulo) => {
         const submoduloCompleto = {
             ...submoduloFormData,
@@ -167,7 +173,6 @@ const Modulos = () => {
                     setDataSubmodulos(prev => [...prev, response.data]);
                     mostrarNotificacion(response.data.message, 'success');
                     fetchModulosbySubmodulo(submoduloFormData.modulo_id);
-                    console.log(submoduloFormData.modulo_id);
                 }
             } else {
                 const existingSubmodulo = dataSubmodulos.find(
@@ -196,12 +201,11 @@ const Modulos = () => {
     const handleCloseSubmoduloModal = () => {
         setModalSubmoduloVisible(false);
         setIsEditSubmodulo(false);
-        setSubmoduloFormData(initialFormData());
     };
 
     const handleAgregarSubmodulo = () => {
-        setSubmoduloFormData(initialFormData());
         setModalSubmoduloVisible(true);
+        setSelectedModuloId(null);
     };
 
 
@@ -352,13 +356,13 @@ const Modulos = () => {
                     <CCard className='mb-3'>
                         <CCardHeader className='pt-0 pb-0' style={{ boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px' }}>
                             <PaginationAndSearch
-                                searchTerm={searchTerm}
-                                setSearchTerm={setSearchTerm}
+                                searchTerm={searchTermSubmodulos}
+                                setSearchTerm={setSearchTermSubmodulos}
                                 modulosPorPagina={modulosPorPagina}
                                 setmodulosPorPagina={setmodulosPorPagina}
                                 currentPage={currentPage}
                                 setCurrentPage={setCurrentPage}
-                                totalRoles={filteredModulos.length}
+                                totalRoles={filteredSubmodulos.length}
                                 display={true}
                             />
                         </CCardHeader>
@@ -367,7 +371,7 @@ const Modulos = () => {
                         <CCardBody>
                             <small style={{ fontSize: '16px' }}>Lista de Submodulos</small>
                             <Table
-                                data={dataSubmodulos.map(modulo => ({
+                                data={paginatedSubmodulos.map(modulo => ({
                                     ...modulo,
                                     key: modulo.id,
                                     actions: (

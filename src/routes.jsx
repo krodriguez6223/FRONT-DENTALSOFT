@@ -6,6 +6,7 @@ import Usuarios from './views/administracion/Usuarios.jsx'
 import Roles from './views/administracion/Roles.jsx'
 import Modulos from './views/administracion/Modulos.jsx'
 
+
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   {
@@ -28,6 +29,8 @@ const routes = [
     name: 'Modulos',
     element: Modulos,
   },
+
+
 
 
 ]
