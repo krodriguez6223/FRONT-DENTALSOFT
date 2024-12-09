@@ -8,24 +8,24 @@ import Notificaciones, { mostrarNotificacion } from '../../components/Notificati
 import axios from '../../conf/axiosConf';
 import CIcon from '@coreui/icons-react';
 import { cilPencil } from '@coreui/icons';
+import DynamicTable from '../../components/DinamicTable';
+import Permisos from './Permisos';
 
 const Roles = () => {
-  const initialFormData = () => ({
-    nombre: '',
-    estado: true, 
-
-  });
-
+ 
+  const initialFormData = () => ({ nombre: '',  estado: true,  });
   const [roles, setRoles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [rolesPorPagina, setRolesPorPagina] = useState(100);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalPermisosVisible, setModalPermisosVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRold, setSelectedRolId] = useState(null);
   const [isEdit, setIsEdit] = useState(false); 
   const [formData, setFormData] = useState(initialFormData());
   const [permisos, setPermisos] = useState([]);
+  const [selectedPermisoId, setSelectedPermisoId] = useState(null);
 
   const fetchRoles = async () => {
     setIsLoading(true);
@@ -39,23 +39,47 @@ const Roles = () => {
       setIsLoading(false);
     }
   };
-  const fetchPermisos = async () => {
-    setIsLoading(true);
-    try {
-      const { data } = await axios.get(`/permisos/per/${5}`); 
-      setPermisos(data);
-    } catch (error) {
-      mostrarNotificacion('Error al cargar permisos: ' + message, 'error'); 
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-console.log(permisos);
+  
+  const columns = [
+    { key: 'name', label: 'Nombre' },
+    { key: 'email', label: 'Correo' },
+    { key: 'phone', label: 'Teléfono' },
+    { key: 'celular', label: 'Celular' },
+    { key: 'name', label: 'Nombre' },
+    { key: 'email', label: 'Correo' },
+    { key: 'phone', label: 'Teléfono' },
+    { key: 'celular', label: 'Celular' },
+    { key: 'name', label: 'Nombre' },
+    { key: 'email', label: 'Correo' },
+    { key: 'phone', label: 'Teléfono' },
+    { key: 'celular', label: 'Celular' },
+    { key: 'name', label: 'Nombre' },
+    { key: 'email', label: 'Correo' },
+    { key: 'phone', label: 'Teléfono' },
+    { key: 'celular', label: 'Celular' },
+    { key: 'email', label: 'Correo' },
+    { key: 'phone', label: 'Teléfono' },
+    { key: 'celular', label: 'Celular' },
+    { key: 'name', label: 'Nombre' },
+    { key: 'email', label: 'Correo' },
+    { key: 'phone', label: 'Teléfono' },
+    { key: 'celular', label: 'Celular' },
+  ];
+
+  const initialData = [
+    { name: 'Juan', email: 'juan@example.com', phone: '123456789', celular: '987654321' },
+    { name: 'Ana', email: 'ana@example.com', phone: '987654321', celular: '123456789' },
+    { name: 'Juan', email: 'juan@example.com', phone: '123456789', celular: '987654321' },
+    { name: 'Ana', email: 'ana@example.com', phone: '987654321', celular: '123456789' },
+  ];
+
+  const handleSave = (data) => {
+    //console.log("Datos guardados:", data);
+  };
 
   useEffect(() => {
     fetchRoles();
-    fetchPermisos();
   }, []);
 
   useEffect(() => {
@@ -140,13 +164,19 @@ console.log(permisos);
     setIsEdit(true);
   }
 
-  const handelePermisos = (rol) => {
-    const {  nombre, estado,  id_rol, } = rol;
-    setFormData({ nombre, estado, id_rol});
-    setSelectedRolId(id_rol); 
-    setModalVisible(true); 
-    setIsEdit(true);
-  }
+  const handlePermisos = async (rol) => {
+    const { nombre, estado, id_rol } = rol;
+    setFormData({ nombre, estado, id_rol });
+    setSelectedPermisoId(id_rol);
+    setModalPermisosVisible(true);
+
+  };
+  const handleCloseModalPermisos = () => {
+    setModalPermisosVisible(false);
+    setIsEdit(false);
+    setSelectedPermisoId(null);
+    setFormData(initialFormData());
+  };
 
   //mostra infromacion del rol en el modal
   const dataRenderer = (data) => {
@@ -156,6 +186,7 @@ console.log(permisos);
     const { id_rol, nombre } = data;
 
     return (
+      
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <tbody>
           <tr>
@@ -208,6 +239,14 @@ console.log(permisos);
        formData={formData}
        isEdit={isEdit}
       />
+           {/* <DynamicTable columns={columns} initialData={initialData} onSave={handleSave} /> */}
+
+     <Permisos
+        visible={modalPermisosVisible}
+        onClose={handleCloseModalPermisos}
+        isEdit={isEdit}
+        rolId={selectedPermisoId}
+      />
       <CCard className="mb-4" style={{boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px'} }>
         <CCardBody>
           <small style={{ fontSize: '20px', padding: '8px' }}>Lista de Roles</small>
@@ -228,7 +267,7 @@ console.log(permisos);
                    onMouseEnter={() => setSelectedRolId(rol.id_rol)} 
                    onMouseLeave={() => setSelectedRolId(null)} 
                    className='btn' 
-                   onClick={() => handleRolSelect(rol)}>
+                   onClick={() => handlePermisos(rol)}>
                    <CIcon  icon={cilPencil}  className='btn-hover'/> 
                 </button>    
                 </div>

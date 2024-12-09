@@ -57,7 +57,7 @@ const BarraAcciones = ({ botones, onAgregarClick, onEditarClick, onActualizarCli
   );
 
   return (
-    <div style={{ marginBottom: '7px', backgroundColor: '#0381a1', padding: '3px', borderRadius: '6px' }}>
+    <div style={{ marginBottom: '7px', backgroundColor: '#0381a1', padding: '1px', borderRadius: '6px' }}>
       {buttonConfig.map(renderButton)} 
     </div>
   );

@@ -10,14 +10,8 @@ import CIcon from '@coreui/icons-react';
 import { cilPencil, cilList, cilTrash } from '@coreui/icons';
 
 const Modulos = () => {
-    const initialFormData = () => ({
-        nombre: '',
-        estado: true,
-        descripcion: '',
-        ruta: '',
-        modulo_id: null
-    });
-
+    
+    const initialFormData = () => ({ nombre: '', estado: true, descripcion: '', ruta: '',  modulo_id: null });
     const [modulos, setModulos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(0);

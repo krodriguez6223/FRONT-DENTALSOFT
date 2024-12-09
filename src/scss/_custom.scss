@@ -1,4 +1,3 @@
-
 .table:hover {
     --cui-table-bg: none !important; // Cambiado a color azul en hover
 }
@@ -165,6 +164,173 @@ $vedeClaro:#2CD5C7;
   transform: scale(1.1); 
 }
 
+
+////////////ESTILOS DE COMPONENTE DINAMIC TABLE////////////
+/* Contenedor principal */
+.dynamic-table-container {
+ 
+  width: fit-content;
+  min-width: 50%;
+  max-width: 100%;
+  padding: 0 10px 10px 10px;
+  margin-bottom: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.dynamic-table-card {
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 10px;
+  min-width: 800px;
+}
+
+/* Tabla */
+.dynamic-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  white-space: nowrap;
+  
+  th, td {
+    min-width: 150px;     // Ancho mínimo para cada columna
+    width: 150px;         // Ancho fijo para cada columna
+    max-width: 150px;     // Ancho máximo para cada columna
+    overflow: hidden;     // Maneja contenido que excede el ancho
+    text-overflow: ellipsis; // Muestra ... cuando el contenido es muy largo
+  }
+
+  // Excepción para la columna del checkbox
+  th:first-child,
+  td:first-child {
+    min-width: 50px;
+    width: 50px;
+    max-width: 50px;
+  }
+}
+
+.dynamic-table th,
+.dynamic-table td {
+  border: 1px solid #868484;
+  padding: 0;
+  text-align: left;
+  min-width: 100px;
+}
+
+.dynamic-table th {
+  text-align: center;
+  background-color: #0381a1;
+  color: #ffffff;
+  font-weight: bold;
+  
+}
+
+.dynamic-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+  
+}
+
+.dynamic-table tr:hover {
+  background-color: #dbdfe6 !important;
+  color: #323a49;
+  cursor: pointer;
+
+  // Asegurar que los inputs también cambien con el hover de la fila
+  .dynamic-table-input {
+    background-color: #dbdfe6 !important;
+    color: #323a49;
+  }
+}
+
+/* Inputs ajustados */
+.dynamic-table-input {
+  background-color: #e6e6e6;
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  border: none;
+  box-sizing: border-box;
+  font-size: 14px;
+  color: #474646;
+  
+  &:focus {
+    outline: 2px solid #0381a1; // Borde al seleccionar
+    outline-offset: -2px;
+    background-color: #f8f9fa;
+    box-shadow: 0 0 3px rgba(3, 129, 161, 0.3);
+  }
+
+  &:hover {
+    background-color: #898b8d;
+  }
+
+  &:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    color: #6c757d;
+  }
+
+  &::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+  }
+}
+
+/* Destacar fila seleccionada */
+.selected-row {
+  background-color: #fdd;
+  color: #0381a1;
+}
+
+/* Checkbox */
+.dynamic-table th:first-child,
+.dynamic-table td:first-child {
+  text-align: center;
+  width: 50px;
+
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    top: 4px;
+    border: 2px solid #0381a1;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    
+    &:checked {
+      background-color: #0381a1;
+      
+      &::after {
+        content: '✓';
+        position: absolute;
+        color: white;
+        font-size: 14px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    &:hover {
+      background-color: rgba(3, 129, 161, 0.1);
+    }
+  }
+}
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dynamic-table {
+  min-width: 100%;
+  white-space: nowrap;
+}
 
 
 
