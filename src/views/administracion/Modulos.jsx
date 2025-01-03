@@ -27,7 +27,6 @@ const Modulos = () => {
     const [submoduloFormData, setSubmoduloFormData] = useState(initialFormData());
     const [searchTermSubmodulos, setSearchTermSubmodulos] = useState('');
 
-    console.log(dataSubmodulos);
     const fetchModulos = async () => {
         setIsLoading(true);
         try {

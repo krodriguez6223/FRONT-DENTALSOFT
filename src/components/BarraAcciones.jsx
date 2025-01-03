@@ -1,7 +1,7 @@
 import React from 'react';
 import { CButton } from '@coreui/react-pro';
 import CIcon from '@coreui/icons-react';
-import { cilActionUndo, cilFilter, cilDataTransferDown, cilPlus, cilPencil, cilPrint, cilShare } from '@coreui/icons'; 
+import { cilSync, cilFilter, cilDataTransferDown, cilPlus, cilPencil, cilPrint, cilShare } from '@coreui/icons'; 
 
 const BarraAcciones = ({ botones, onAgregarClick, onEditarClick, onActualizarClick, onImprimirClick, onDescargarClick, onCompartirClick, onFiltrarClick }) => { 
   const [hoveredKey, setHoveredKey] = React.useState(null); 
@@ -9,7 +9,7 @@ const BarraAcciones = ({ botones, onAgregarClick, onEditarClick, onActualizarCli
   const buttonConfig = [
     { key: 'agregar', icon: cilPlus, title: 'Agregar' },
     { key: 'editar', icon: cilPencil, title: 'Editar' },
-    { key: 'actualizar', icon: cilActionUndo, title: 'Actualizar' },
+    { key: 'actualizar', icon: cilSync, title: 'Actualizar' },
     { key: 'imprimir', icon: cilPrint, title: 'Imprimir' },
     { key: 'descargar', icon: cilDataTransferDown, title: 'Descargar' },
     { key: 'compartir', icon: cilShare, title: 'Compartir' },

@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CButton } from '@coreui/react-pro';
 import Notificaciones, { mostrarNotificacion } from '../../components/Notification';
 import axios from '../../conf/axiosConf';
-import { cilPencil, cilPlus } from '@coreui/icons';
+import {  cilPlus, cilTrash } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
+import ConfirmModal from '../../components/ConfirmModal';
 
-const Permisos = ({ visible, onClose, formData, isEdit, permisos, rolId }) => {  
-    
+const Permisos = ({ visible, onClose, formData, rolId }) => {  
     const [isLoading, setIsLoading] = useState(false);
     const [permisosData, setPermisosData] = useState([]);
     const [nuevoSubmodulo, setNuevoSubmodulo] = useState({
@@ -14,14 +14,23 @@ const Permisos = ({ visible, onClose, formData, isEdit, permisos, rolId }) => {
         modulo_id: null,
         created: false,
         read: false,
-        update: false,
-        delete: false,
-        export: false,
-        print: false
+        updateperm: false,
+        deleteperm: false,
+        exportperm: false,
+        printperm: false
     });
     const [submodulos, setSubmodulos] = useState([]);
-    const [selectedSubmodulo, setSelectedSubmodulo] = useState('');
-
+    const [selectedSubmodulos, setSelectedSubmodulos] = useState([]);
+    const [todosModulos, setTodosModulos] = useState([]);
+    const [activeModuleId, setActiveModuleId] = useState(null);
+    const [filasTemporales, setFilasTemporales] = useState([]);
+    const [confirmModal, setConfirmModal] = useState({
+        visible: false,
+        permisoId: null,
+        nombreSubmodulo: '',
+    });
+   
+    //obtiene los permisos del rol
     const fetchPermisos = async (rolId) => {
         setIsLoading(true);
         try {
@@ -32,90 +41,229 @@ const Permisos = ({ visible, onClose, formData, isEdit, permisos, rolId }) => {
             setIsLoading(false);
         }
     };
-    const fetchSubmodulos = async (moduloId) => {
-        console.log(moduloId);
+    //obtiene los submodulos del modulo
+    const fetchSubmodulos = async (modulo_id) => {
         try {
-            const { data } = await axios.get(`/submodulos/sub/1`);
-            console.log(data);
+            const { data } = await axios.get(`/submodulos/sub/${modulo_id}`);
             setSubmodulos(data);
         } catch (error) {
             mostrarNotificacion('Error al cargar submódulos', 'error');
         }
     };
+    //obtiene los modulos
+    const fetchTodosModulos = async () => {
+        try {
+            const { data } = await axios.get('/modulos/mod');
+            setTodosModulos(data);
+        } catch (error) {
+            mostrarNotificacion('Error al cargar módulos', 'error');
+        }
+    };
     useEffect(() => {
-        console.log(submodulos);
     }, [submodulos]);
-
+    
+    //agrupa los permisos por modulo
     const agruparPermisosPorModulo = (permisos) => {
-        const grupos = permisos.reduce((acc, permiso) => {
-            const moduloKey = `${permiso.modulo_id}-${permiso.nombre_modulo}`;
-            if (!acc[moduloKey]) {
-                acc[moduloKey] = {
-                    nombre_modulo: permiso.nombre_modulo,
-                    modulo_id: permiso.modulo_id,
-                    permisos: []
-                };
-            }
-            acc[moduloKey].permisos.push(permiso);
+        const gruposIniciales = todosModulos.reduce((acc, modulo) => {
+            acc[modulo.id] = {
+                nombre_modulo: modulo.nombre,
+                modulo_id: modulo.id,
+                permisos: []
+            };
             return acc;
         }, {});
-        
-        return Object.values(grupos).sort((a, b) => a.modulo_id - b.modulo_id);
+        //agrega los permisos a los modulos
+        permisos.forEach(permiso => {
+            const moduloKey = permiso.modulo_id;
+            if (gruposIniciales[moduloKey]) {
+                gruposIniciales[moduloKey].permisos.push(permiso);
+            }
+        });
+
+        return Object.values(gruposIniciales).sort((a, b) => a.modulo_id - b.modulo_id);
     };
 
     const handleClose = () => {
         setPermisosData([]);
+        setSelectedSubmodulos([]);
+        setActiveModuleId(null);
+        setFilasTemporales([]);
         onClose();
+        setNuevoSubmodulo({
+            nombre_submodulo: '',
+            modulo_id: null,
+            created: false,
+            read: false,
+            updateperm: false,
+            deleteperm: false,
+            exportperm: false,
+            printperm: false
+        });
     };
-
+    //cambia el estado de los permisos
     const handlePermissionChange = (permisoId, field) => {
         setPermisosData(prevPermisos => 
             prevPermisos.map(permiso => 
                 permiso.id_permiso === permisoId
-                    ? { ...permiso, [field]: !permiso[field] }
+                    ? { ...permiso, [field]: !Boolean(permiso[field]) }
                     : permiso
             )
         );
     };
-
-
-
+    //agrega un nuevo submodulo al modulo
     const agregarNuevoSubmodulo = (moduloId) => {
         fetchSubmodulos(moduloId);
-        setNuevoSubmodulo({
-            ...nuevoSubmodulo,
-            modulo_id: moduloId
-        });
+        setActiveModuleId(moduloId);
+        setFilasTemporales(prev => [...prev, {
+            id: `temp-row-${Date.now()}`,
+            modulo_id: moduloId,
+            submodulo_id: null,
+            created: false,
+            read: false,
+            updateperm: false,
+            deleteperm: false,
+            exportperm: false,
+            printperm: false
+        }]);
     };
-
-    const handleSubmoduloSelect = (e) => {
-        const submoduloSeleccionado = submodulos.find(
-            sub => sub.id_submodulo === parseInt(e.target.value)
+    //selecciona un submodulo
+    const handleSubmoduloSelect = (filaId, e) => {
+        const submoduloId = parseInt(e.target.value);
+        
+        if (!submoduloId) return;
+        
+        // Verificar si el submódulo ya existe
+        const submoduloExistente = permisosData.some(
+            permiso => permiso.id_submodulo === submoduloId
         );
         
-        if (submoduloSeleccionado) {
-            setNuevoSubmodulo({
-                ...nuevoSubmodulo,
-                nombre_submodulo: submoduloSeleccionado.nombre_submodulo,
-                id_submodulo: submoduloSeleccionado.id_submodulo
-            });
-            setSelectedSubmodulo(e.target.value);
+        if (submoduloExistente) {
+            mostrarNotificacion('Este submódulo ya tiene permisos asignados', 'error');
+            e.target.value = '';
+            return;
         }
+        
+        const submoduloSeleccionado = submodulos.find(
+            sub => sub.id === submoduloId
+        );
+        //agrega el nuevo submodulo a los permisos
+        if (submoduloSeleccionado) {
+            const nuevoPermiso = {
+                id_permiso: `temp-${Date.now()}`,
+                nombre_submodulo: submoduloSeleccionado.nombre,
+                modulo_id: activeModuleId,
+                id_submodulo: submoduloId,
+                created: false,
+                read: false,
+                updateperm: false,
+                deleteperm: false,
+                exportperm: false,
+                printperm: false
+            };
+
+            setPermisosData(prevPermisos => [...prevPermisos, nuevoPermiso]);
+            setFilasTemporales(prev => prev.filter(fila => fila.id !== filaId));
+        }
+    };
+
+    const handleTemporaryPermissionChange = (filaId, field) => {
+        setFilasTemporales(prev => prev.map(fila => 
+            fila.id === filaId ? { ...fila, [field]: !fila[field] } : fila
+        ));
+    };
+
+    const eliminarFilaTemporal = (filaId) => {
+        setFilasTemporales(prev => prev.filter(fila => fila.id !== filaId));
     };
 
     useEffect(() => {
         if (rolId && visible) {
             fetchPermisos(rolId);
+            fetchTodosModulos();
         }
         if (!visible) {
             setPermisosData([]);
         }
     }, [rolId, visible]);
 
+    //actualiza los permisos
     const handleSubmit = async () => {
-        // Aquí irá la lógica para guardar los permisos
-        console.log('Guardando permisos...');
-    }
+        if (filasTemporales.length > 0) {
+            mostrarNotificacion('Debe seleccionar un submódulo para todas las filas agregadas o eliminarlas antes de actualizar', 'error');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            let permisosActualizados = permisosData.map(permiso => ({
+                id_permiso: permiso.id_permiso?.toString().startsWith('temp-') ? null : permiso.id_permiso,
+                id_rol: rolId,
+                id_submodulo: permiso.id_submodulo,
+                created: Boolean(permiso.created),
+                read: Boolean(permiso.read),
+                updateperm: Boolean(permiso.updateperm),
+                deleteperm: Boolean(permiso.deleteperm),
+                exportperm: Boolean(permiso.exportperm),
+                printperm: Boolean(permiso.printperm)
+            }));
+
+            if (selectedSubmodulos.length > 0 && nuevoSubmodulo.modulo_id) {
+                selectedSubmodulos.forEach(submoduloId => {
+                    permisosActualizados.push({
+                        id_permiso: null,
+                        id_rol: rolId,
+                        id_submodulo: submoduloId,
+                        created: Boolean(nuevoSubmodulo.created),
+                        read: Boolean(nuevoSubmodulo.read),
+                        updateperm: Boolean(nuevoSubmodulo.updateperm),
+                        deleteperm: Boolean(nuevoSubmodulo.deleteperm),
+                        exportperm: Boolean(nuevoSubmodulo.exportperm),
+                        printperm: Boolean(nuevoSubmodulo.printperm)
+                    });
+                });
+            }
+
+            await axios.put(`/permisos/per/`, {
+                permisos: permisosActualizados
+            });
+
+            mostrarNotificacion('Permisos actualizados exitosamente', 'success');
+            handleClose();
+        } catch (error) {
+            mostrarNotificacion('Error al actualizar los permisos', 'error');
+            console.error('Error completo:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const eliminarPermiso = async (permisoId, nombreSubmodulo) => {
+        setConfirmModal({
+            visible: true,
+            permisoId,
+            nombreSubmodulo,
+        });
+    };
+    //elimina el permiso
+    const handleConfirmDelete = async () => {
+        const { permisoId, nombreSubmodulo } = confirmModal;
+        try {
+            if (String(permisoId).startsWith('temp-')) {
+                setPermisosData(prev => prev.filter(p => p.id_permiso !== permisoId));
+                setConfirmModal({ visible: false, permisoId: null, nombreSubmodulo: '' });
+                return;
+            }
+
+            await axios.delete(`/permisos/per/${permisoId}`);
+            setPermisosData(prev => prev.filter(p => p.id_permiso !== permisoId));
+            mostrarNotificacion('Permiso eliminado exitosamente', 'success');
+        } catch (error) {
+            mostrarNotificacion('Error al eliminar el permiso', 'error');
+            console.error('Error:', error);
+        } finally {
+            setConfirmModal({ visible: false, permisoId: null, nombreSubmodulo: '' });
+        }
+    };
     
     return (
         <div>
@@ -127,98 +275,218 @@ const Permisos = ({ visible, onClose, formData, isEdit, permisos, rolId }) => {
                 setPermisosData={setPermisosData}
             >
                 <CModalHeader>
-                    <CModalTitle>Permisos - {formData?.nombre_modulo}</CModalTitle>
+                    <CModalTitle>Permisos - {formData?.nombre}</CModalTitle>
                 </CModalHeader>
                 <CModalBody style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                     {isLoading ? (
                         <p>Cargando permisos...</p>
                     ) : (
                         agruparPermisosPorModulo(permisosData).map((grupo) => (
-                            <div key={grupo.modulo_id} className="mb-4">
-                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <h5>{grupo.nombre_modulo}</h5>
+                            <div key={grupo.modulo_id} className="mb-4 mr-2">
+                                <div className="d-flex align-items-center mb-3 justify-content-between">
+                                    <h6 style={{fontWeight: 'bold', color: '#4a566d'}}>MODULO: {grupo.nombre_modulo}</h6>
                                     <CButton 
-                                        color="primary" 
+                                        color="warning" 
                                         size="sm"
                                         onClick={() => agregarNuevoSubmodulo(grupo.modulo_id)}
+                                        style={{ backgroundColor: '#e5ce90', borderColor: '#e5ce90' }}
+                                        title="Agregar un nuevo submodulo"
                                     >
-                                        <CIcon icon={cilPlus} /> Agregar Submódulo
+                                        <CIcon icon={cilPlus} />
                                     </CButton>
                                 </div>
-                                <table className='table table-striped'>
-                                    <thead className='sticky-top' style={{ backgroundColor: '#f8f9fa', position: 'sticky', top: 0, zIndex: 100  }}>
-                                        <tr>
-                                            <th>SUBMÓDULOS</th>
-                                            <th>Crear</th>
-                                            <th>Ver</th>
-                                            <th>Editar</th>
-                                            <th>Eliminar</th>
-                                            <th>Exportar</th>
-                                            <th>Imprimir</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {grupo.permisos.map((permiso) => (
-                                            <tr key={permiso.id_permiso}>
-                                                <td>{permiso.nombre_submodulo}</td>
-                                                <td><input 
-                                                    type="checkbox" 
-                                                    checked={permiso.created} 
-                                                    onChange={() => handlePermissionChange(permiso.id_permiso, 'created')}
-                                                /></td>
-                                                <td><input 
-                                                    type="checkbox" 
-                                                    checked={permiso.read} 
-                                                    onChange={() => handlePermissionChange(permiso.id_permiso, 'read')}
-                                                /></td>
-                                                <td><input 
-                                                    type="checkbox" 
-                                                    checked={permiso.update} 
-                                                    onChange={() => handlePermissionChange(permiso.id_permiso, 'update')}
-                                                /></td>
-                                                <td><input 
-                                                    type="checkbox" 
-                                                    checked={permiso.delete} 
-                                                    onChange={() => handlePermissionChange(permiso.id_permiso, 'delete')}
-                                                /></td>
-                                                <td><input 
-                                                    type="checkbox" 
-                                                    checked={permiso.export} 
-                                                    onChange={() => handlePermissionChange(permiso.id_permiso, 'export')}
-                                                /></td>
-                                                <td><input 
-                                                    type="checkbox" 
-                                                    checked={permiso.print} 
-                                                    onChange={() => handlePermissionChange(permiso.id_permiso, 'print')}
-                                                /></td>
-                                            </tr>
-                                        ))}
-                                        {grupo.modulo_id === nuevoSubmodulo.modulo_id && (
+                                {grupo.permisos.length === 0 && grupo.modulo_id !== activeModuleId ? (
+                                    <div className="alert alert-info text-center">
+                                        Sin permisos asignados
+                                    </div>
+                                ) : (
+                                    <table className='table table-striped'>
+                                        <thead>
                                             <tr>
-                                                <td>
-                                                    <select
-                                                        className="form-select"
-                                                        value={selectedSubmodulo}
-                                                        onChange={handleSubmoduloSelect}
-                                                    >
-                                                        <option value="">Seleccione un submódulo</option>
-                                                        {submodulos.map(sub => (
-                                                            <option key={sub.id_submodulo} value={sub.id_submodulo}>
-                                                                {sub.nombre_submodulo}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </td>
-                                                <td><input type="checkbox" checked={nuevoSubmodulo.created} onChange={() => setNuevoSubmodulo({...nuevoSubmodulo, created: !nuevoSubmodulo.created})} /></td>
-                                                <td><input type="checkbox" checked={nuevoSubmodulo.read} onChange={() => setNuevoSubmodulo({...nuevoSubmodulo, read: !nuevoSubmodulo.read})} /></td>
-                                                <td><input type="checkbox" checked={nuevoSubmodulo.update} onChange={() => setNuevoSubmodulo({...nuevoSubmodulo, update: !nuevoSubmodulo.update})} /></td>
-                                                <td><input type="checkbox" checked={nuevoSubmodulo.delete} onChange={() => setNuevoSubmodulo({...nuevoSubmodulo, delete: !nuevoSubmodulo.delete})} /></td>
-                                                <td><input type="checkbox" checked={nuevoSubmodulo.export} onChange={() => setNuevoSubmodulo({...nuevoSubmodulo, export: !nuevoSubmodulo.export})} /></td>
-                                                <td><input type="checkbox" checked={nuevoSubmodulo.print} onChange={() => setNuevoSubmodulo({...nuevoSubmodulo, print: !nuevoSubmodulo.print})} /></td>
+                                                <th className='text-center'>SUBMÓDULOS</th>
+                                                <th className='text-center'>Crear</th>
+                                                <th className='text-center'>Ver</th>
+                                                <th className='text-center'>Editar</th>
+                                                <th className='text-center'>Eliminar</th>
+                                                <th className='text-center'>Exportar</th>
+                                                <th className='text-center'>Imprimir</th>
                                             </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {grupo.permisos.map((permiso) => (
+                                                <tr key={permiso.id_permiso}>
+                                                    <td style={{ backgroundColor: '#0381a1', color: 'white' }} className="d-flex justify-content-between align-items-center">
+                                                        <span>{permiso.nombre_submodulo}</span>
+                                                        <CButton
+                                                            color="danger"
+                                                            size="sm"
+                                                            onClick={() => eliminarPermiso(permiso.id_permiso, permiso.nombre_submodulo)}
+                                                            style={{ 
+                                                                backgroundColor: 'transparent', 
+                                                                border: 'none',
+                                                                padding: '0 5px'
+                                                            }}
+                                                            title="Eliminar permiso"
+                                                        >
+                                                            <CIcon icon={cilTrash} style={{ color: 'white' }} />
+                                                        </CButton>
+                                                    </td>
+                                                    <td className="text-center">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={permiso.created} 
+                                                            onChange={() => handlePermissionChange(permiso.id_permiso, 'created')}
+                                                            className="checkbox-custom"
+                                                            title="Crear"
+                                                        />
+                                                    </td>
+                                                    <td className="text-center">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={permiso.read} 
+                                                            onChange={() => handlePermissionChange(permiso.id_permiso, 'read')}
+                                                            className="checkbox-custom"
+                                                            title="Ver"
+                                                        />
+                                                    </td>
+                                                    <td className="text-center">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={Boolean(permiso.updateperm)} 
+                                                            onChange={() => handlePermissionChange(permiso.id_permiso, 'updateperm')}
+                                                            className="checkbox-custom"
+                                                            title="Editar"
+                                                        />
+                                                    </td>
+                                                    <td className="text-center">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={Boolean(permiso.deleteperm)} 
+                                                            onChange={() => handlePermissionChange(permiso.id_permiso, 'deleteperm')}
+                                                            className="checkbox-custom"
+                                                            title="Eliminar"
+                                                        />
+                                                    </td>
+                                                    <td className="text-center">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={Boolean(permiso.exportperm)} 
+                                                            onChange={() => handlePermissionChange(permiso.id_permiso, 'exportperm')}
+                                                            className="checkbox-custom"
+                                                            title="Exportar"
+                                                        />
+                                                    </td>
+                                                    <td className="text-center">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={Boolean(permiso.printperm)} 
+                                                            onChange={() => handlePermissionChange(permiso.id_permiso, 'printperm')}
+                                                            className="checkbox-custom"
+                                                            title="Imprimir"
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {grupo.modulo_id === activeModuleId && filasTemporales
+                                                .filter(fila => fila.modulo_id === grupo.modulo_id)
+                                                .map((fila) => (
+                                                    <tr key={fila.id}>
+                                                        <td style={{ backgroundColor: '#f5f5f5', position: 'relative' }}>
+                                                            <div className="d-flex align-items-center">
+                                                                <select
+                                                                    className="form-select"
+                                                                    onChange={(e) => handleSubmoduloSelect(fila.id, e)}
+                                                                    defaultValue=""
+                                                                    style={{ backgroundColor: '#f5f5f5', flex: 1 }}
+                                                                >
+                                                                    <option value="">Seleccione..</option>
+                                                                    {submodulos
+                                                                        .filter(sub => !selectedSubmodulos.includes(sub.id) && 
+                                                                                    !permisosData.some(permiso => permiso.id_submodulo === sub.id))
+                                                                        .map(sub => (
+                                                                            <option key={sub.id} value={sub.id}>
+                                                                                {sub.nombre}
+                                                                            </option>
+                                                                        ))
+                                                                    }
+                                                                </select>
+                                                                <div>
+                                                              
+                                                                <button
+                                                                    className='btn'
+                                                                    color="danger"
+                                                                    size="sm"
+                                                                    onClick={() => eliminarFilaTemporal(fila.id)}
+                                                                    style={{ marginLeft: '10px' }}
+                                                                    title="Eliminar fila"
+                                                                >
+                                                                    <CIcon icon={cilTrash}
+                                                                         className='btn-hover' />
+                                                                </button>
+                                                                </div>
+                                                               
+                                                            </div>
+                                                        </td>
+                                                        <td className="text-center">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={fila.created}
+                                                                onChange={() => handleTemporaryPermissionChange(fila.id, 'created')}
+                                                                className="checkbox-custom"
+                                                                title="Crear"
+                                                            />
+                                                        </td>
+                                                        <td className="text-center">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={fila.read}
+                                                                onChange={() => handleTemporaryPermissionChange(fila.id, 'read')}
+                                                                className="checkbox-custom"
+                                                                title="Ver"
+                                                            />
+                                                        </td>
+                                                        <td className="text-center">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={fila.updateperm}
+                                                                onChange={() => handleTemporaryPermissionChange(fila.id, 'updateperm')}
+                                                                className="checkbox-custom"
+                                                                title="Editar"
+                                                            />
+                                                        </td>
+                                                        <td className="text-center">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={fila.deleteperm}
+                                                                onChange={() => handleTemporaryPermissionChange(fila.id, 'deleteperm')}
+                                                                className="checkbox-custom"
+                                                                title="Eliminar"
+                                                            />
+                                                        </td>
+                                                        <td className="text-center">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={fila.exportperm}
+                                                                onChange={() => handleTemporaryPermissionChange(fila.id, 'exportperm')}
+                                                                className="checkbox-custom"
+                                                                title="Exportar"
+                                                            />
+                                                        </td>
+                                                        <td className="text-center">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={fila.printperm}
+                                                                onChange={() => handleTemporaryPermissionChange(fila.id, 'printperm')}
+                                                                className="checkbox-custom"
+                                                                title="Imprimir"
+                                                            />
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            }
+                                        </tbody>
+                                    </table>
+                                )}
                             </div>
                         ))
                     )}
@@ -227,12 +495,19 @@ const Permisos = ({ visible, onClose, formData, isEdit, permisos, rolId }) => {
                     <CButton color="secondary" onClick={handleClose}>
                         Cerrar
                     </CButton>
-                    <CButton color="primary" onClick={handleSubmit}>
-                        Guardar cambios
+                    <CButton color="warning" onClick={handleSubmit}>
+                        Actualizar 
                     </CButton>
                 </CModalFooter>
                 
             </CModal>
+            <ConfirmModal
+                visible={confirmModal.visible}
+                onClose={() => setConfirmModal({ visible: false, permisoId: null, nombreSubmodulo: '' })}
+                onConfirm={handleConfirmDelete}
+                title="Confirmar eliminación"
+                message={`¿Está seguro que desea eliminar los permisos del submódulo "${confirmModal.nombreSubmodulo}"?`}
+            />
         </div>  
     )
 }

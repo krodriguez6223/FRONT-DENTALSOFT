@@ -90,17 +90,13 @@ $vedeClaro:#2CD5C7;
 
 // Header styles
 .table thead th {
-  position: sticky;
-  top: 0;
   background: #0381a1;
   color: #c1d8da;
   font-weight: 400;
-  padding: 8px;
-  white-space: nowrap;
-  font-size: 17px;
-  text-align: left;
-  z-index: 10;
-  border-bottom: 2px solid #ddd;
+  padding: 3px;
+ // white-space: nowrap;
+  font-size: 15px;
+
 }
 
 // Row styles
@@ -331,6 +327,14 @@ $vedeClaro:#2CD5C7;
   min-width: 100%;
   white-space: nowrap;
 }
+
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  accent-color: #e5ce90;
+}
+
+///estilos de confirm modal
 
 
 

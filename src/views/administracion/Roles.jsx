@@ -7,7 +7,7 @@ import Table from '../../components/Table';
 import Notificaciones, { mostrarNotificacion } from '../../components/Notification';
 import axios from '../../conf/axiosConf';
 import CIcon from '@coreui/icons-react';
-import { cilPencil } from '@coreui/icons';
+import { cilPencil, cilLockLocked } from '@coreui/icons';
 import DynamicTable from '../../components/DinamicTable';
 import Permisos from './Permisos';
 
@@ -24,7 +24,6 @@ const Roles = () => {
   const [selectedRold, setSelectedRolId] = useState(null);
   const [isEdit, setIsEdit] = useState(false); 
   const [formData, setFormData] = useState(initialFormData());
-  const [permisos, setPermisos] = useState([]);
   const [selectedPermisoId, setSelectedPermisoId] = useState(null);
 
   const fetchRoles = async () => {
@@ -246,6 +245,7 @@ const Roles = () => {
         onClose={handleCloseModalPermisos}
         isEdit={isEdit}
         rolId={selectedPermisoId}
+        formData={formData}
       />
       <CCard className="mb-4" style={{boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px'} }>
         <CCardBody>
@@ -260,15 +260,19 @@ const Roles = () => {
                    onMouseEnter={() => setSelectedRolId(rol.id_rol)} 
                    onMouseLeave={() => setSelectedRolId(null)} 
                    className='btn ' 
-                   onClick={() => handleRolSelect(rol)}>
+                   onClick={() => handleRolSelect(rol)}
+                   title='Editar rol'
+                   >
                    <CIcon icon={cilPencil}  className='btn-hover' /> 
                 </button>
                 <button
                    onMouseEnter={() => setSelectedRolId(rol.id_rol)} 
                    onMouseLeave={() => setSelectedRolId(null)} 
                    className='btn' 
-                   onClick={() => handlePermisos(rol)}>
-                   <CIcon  icon={cilPencil}  className='btn-hover'/> 
+                   onClick={() => handlePermisos(rol)}
+                   title='Permisos del rol'
+                   >
+                   <CIcon  icon={cilLockLocked}  className='btn-hover'/> 
                 </button>    
                 </div>
              
