@@ -3,7 +3,6 @@ import {
   CButton,
   CCard,
   CCardBody,
-  CCardGroup,
   CCol,
   CContainer,
   CForm,
@@ -12,7 +11,6 @@ import {
   CInputGroupText,
   CRow,
 } from '@coreui/react-pro'
-
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser, cilArrowCircleLeft } from '@coreui/icons'
 import Notificaciones, { mostrarNotificacion } from '../../../components/Notification'
@@ -23,16 +21,15 @@ const Login = () => {
   const [mostrarContrasenia, setMostrarContrasenia] = useState(false);
 
   useEffect(() => {
-   
     const token = localStorage.getItem('token');
     if (token) {
       window.location.replace('/inicio'); 
     }
   }, []); 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validación de campos vacíos
     if (!nombreUsuario.trim() || !contrasenia.trim()) {
       mostrarNotificacion('Por favor, completa todos los campos', 'error')
       return;
@@ -47,19 +44,38 @@ const Login = () => {
       const response = await fetch(`${API}/auth/signin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre_usuario: nombreUsuario.trim(), contrasenia: contrasenia.trim() }),
+        body: JSON.stringify({ 
+          nombre_usuario: nombreUsuario.trim(), 
+          contrasenia: contrasenia.trim() 
+        }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json(); // Cambiado a JSON
-        throw new Error(errorData.error || 'Error en la respuesta del servidor'); // Usar el mensaje de error del JSON
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error en la respuesta del servidor');
       }
 
       const contentType = response.headers.get("content-type");
       if (contentType?.includes("application/json")) {
         const data = await response.json();
-        // Manteniendo localStorage para el token
+        
+        // Almacenar token y permisos
         localStorage.setItem('token', data.token);
+        
+        // Almacenar permisos por separado para fácil acceso
+        if (data.permisos) {
+          localStorage.setItem('userPermissions', JSON.stringify(data.permisos));
+        }
+
+        // Almacenar información del usuario
+        const userData = {
+          id_usuario: data.id_usuario,
+          nombre_usuario: data.nombre_usuario,
+          caja_id: data.caja_id
+        };
+        localStorage.setItem('userData', JSON.stringify(userData));
+
+        // Redireccionar al inicio
         window.location.replace('/inicio');
       } else {
         throw new Error('La respuesta no es un JSON válido');

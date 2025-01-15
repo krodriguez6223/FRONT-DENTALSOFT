@@ -333,6 +333,145 @@ $vedeClaro:#2CD5C7;
   height: 20px;
   accent-color: #e5ce90;
 }
+.header-table-dynamic {
+  position: sticky;
+  top: 0;
+  background: #0381a1;
+  color: #c1d8da;
+  font-weight: 400;
+  padding: 3px;
+  padding-left: 3px;
+  white-space: nowrap;
+  font-size: 17px;
+  text-align: left;
+  z-index: 10;
+  border-bottom: 2px solid #ddd;
+}
+
+/////estlios de dashboard de lo modulos
+.dashboard {
+  &-container {
+    background: #f5f6fa;
+    min-height: 10vh;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  &-card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
+
+    @media (max-width: 768px) {
+      justify-content: space-between;
+    }
+  }
+
+  &-card {
+    border-radius: 15px;
+    padding: 15px;
+    width: 200px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    color: #fff;
+
+    @media (max-width: 768px) {
+      width: 170px;
+      height: 70px;
+      padding: 10px;
+    }
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &-icon-column {
+    flex: 0 0 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &-text-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding-left: 10px;
+  }
+
+  &-icon-container {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    @media (max-width: 768px) {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  &-icon {
+    width: 50px;
+    height: 50px;
+
+    @media (max-width: 768px) {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  &-title {
+    font-size: 14px;
+    font-weight: bold;
+
+    @media (max-width: 768px) {
+      font-size: 12px;
+    }
+  }
+
+  &-subtitle {
+    font-size: 12px;
+    font-weight: normal;
+
+    @media (max-width: 768px) {
+      font-size: 10px;
+    }
+  }
+
+  &-stat {
+    font-size: 14px;
+    font-weight: bold;
+  }
+}
+
+
+
+
+
+  // color secundario: azul: #05a6ce 
+  //color secundario: verde: #158384
+  //color terciario: verde calro:#99d3d9
+  //color cuarto: amarillo: #e5ce90
+  //color fuente:  gris: #b2b2b2
+
+   
+
+
+
 
 ///estilos de confirm modal
 

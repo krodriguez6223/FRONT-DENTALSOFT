@@ -2,13 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import ModalView from '../components/ModalView';
 import Submodulos from '../views/administracion/Submodulos';
 
-const Table = ({ data, columnas, dataRenderer, onRowSelect }) => {
+const Table = ({ data, columnas, dataRenderer, onRowSelect, totalRegistros }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [hoveredRowKey, setHoveredRowKey] = useState(null);
   const [selectedRowKey, setSelectedRowKey] = useState(null);
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: 'ascending'
+  });
 
- 
   const tableRef = useRef(null);
 
   const handleDoubleClick = (row) => {
@@ -34,6 +37,28 @@ const Table = ({ data, columnas, dataRenderer, onRowSelect }) => {
     };
   }, []);
 
+  const sortData = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortedData = () => {
+    if (!sortConfig.key) return data;
+
+    return [...data].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
   return (
     <div
       ref={tableRef}
@@ -46,6 +71,7 @@ const Table = ({ data, columnas, dataRenderer, onRowSelect }) => {
               {columnas.map((col) => (
                 <th
                   key={col.key}
+                  onClick={() => sortData(col.key)}
                   style={{
                     position: 'sticky',
                     top: 0,
@@ -53,31 +79,34 @@ const Table = ({ data, columnas, dataRenderer, onRowSelect }) => {
                     color: '#c1d8da',
                     fontWeight: '400',
                     padding: '3px',
+                    paddingLeft: columnas[0].key === col.key ? '15px' : '3px',
                     whiteSpace: 'nowrap',
                     fontSize: '17px',
                     textAlign: 'left',
                     zIndex: 10,
                     borderBottom: '2px solid #ddd',
+                    cursor: 'pointer',
                   }}
                 >
                   {col.label}
+                  {sortConfig.key === col.key && (
+                    <span style={{ marginLeft: '5px' }}>
+                      {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
                 </th>
               ))}
             </tr>
           </thead>
         )}
         <tbody>
-          {data.length > 0 ? (
-            data.map((row) => (
+          {getSortedData().length > 0 ? (
+            getSortedData().map((row) => (
               <tr
                 key={row.key}
                 style={{
-                  cursor: 'pointer', backgroundColor:
-                    selectedRowKey === row.key
-                      ? '#ffcccc'
-                      : hoveredRowKey === row.key
-                      ? '#dbdfe6'
-                      : undefined,
+                  cursor: 'pointer',
+                  backgroundColor: selectedRowKey === row.key   ? 'rrgb(3 129 161 / 69%)' : hoveredRowKey === row.key ? '#dbdfe6' : '#f8f9fa',
                   color: hoveredRowKey === row.key ? '#323a49' : undefined,
                 }}
                 onMouseEnter={() => setHoveredRowKey(row.key)}
@@ -134,6 +163,27 @@ const Table = ({ data, columnas, dataRenderer, onRowSelect }) => {
             </tr>
           )}
         </tbody>
+        <tfoot>
+          <tr>
+            <td
+              colSpan={columnas.length}
+              style={{
+                position: 'sticky',
+                bottom: 0,
+                background: '#e5ce90',
+                padding: '3px',
+                color: '#6b7785',
+                fontWeight: '500',
+                textAlign: 'right',
+                borderBottomLeftRadius: '5px',
+                borderBottomRightRadius: '5px',
+              }}
+            >
+           <span style={{ marginRight: '20px', color: '#323a49', fontSize: '15px', fontWeight: 'bold' }}>Total de registros: {totalRegistros || data.length}</span> 
+
+            </td>
+          </tr>
+        </tfoot>
       </table>
 
       <ModalView

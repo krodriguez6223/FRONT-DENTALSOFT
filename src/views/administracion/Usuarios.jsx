@@ -7,7 +7,8 @@ import Table from '../../components/Table';
 import Notificaciones, { mostrarNotificacion } from '../../components/Notification';
 import axios from '../../conf/axiosConf';
 import CIcon from '@coreui/icons-react';
-import { cilPencil } from '@coreui/icons';
+import { cilPencil, cilCog } from '@coreui/icons';
+import Permisos from './Permisos';
 
 const Usuarios = () => {
   const initialFormData = () => ({
@@ -31,6 +32,8 @@ const Usuarios = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isEdit, setIsEdit] = useState(false); 
   const [formData, setFormData] = useState(initialFormData());
+  const [modalPermisosVisible, setModalPermisosVisible] = useState(false);
+  const [selectedRolId, setSelectedRolId] = useState(null);
 
   const fetchUsuarios = async () => {
     setIsLoading(true);
@@ -43,6 +46,18 @@ const Usuarios = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePermisos = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedRolId(formData.id_rol);
+    setModalPermisosVisible(true);
+  };
+
+  const handleCloseModalPermisos = () => {
+    setModalPermisosVisible(false);
+    setSelectedRolId(null);
   };
 
 
@@ -76,9 +91,9 @@ const Usuarios = () => {
 
       if (isEdit) {
         if (!nuevoUsuario.contrasenia) {
-          usuarioCompleto.contrasenia = formData.contrasenia; 
+          delete usuarioCompleto.contrasenia;
         }
-        // Actualizar usuario existente
+        
         response = await axios.put(`/users/usr/${formData.id_usuario}`, usuarioCompleto);
         if (response.status === 200) {
           setUsuarios(prevUsuarios => 
@@ -97,7 +112,6 @@ const Usuarios = () => {
           return; 
         }
         
-        // Agregar nuevo usuario
         response = await axios.post(`/users/usr/`, usuarioCompleto);
         if (response.status === 201) {
           setUsuarios(prevUsuarios => [...prevUsuarios, response.data]);
@@ -237,7 +251,7 @@ const Usuarios = () => {
         col="col-md-6"
         tamaño="lg"
         titulo={formData.id_usuario ? "Editar Usuario" : "Nuevo Usuario"} 
-       campos={[
+        campos={[
           { name: 'nombre_usuario', placeholder: 'Nombre de usuario', type: 'text', key: 'nombre_usuario', required: true, pattern: /^[a-zA-Z0-9]+$/ }, 
           { name: 'contrasenia', placeholder: 'Contraseña', type: 'password', key: 'contrasenia', required: true }, 
           { name: 'estado', placeholder: 'Estado', type: 'select', key: 'estado', options: [
@@ -251,13 +265,30 @@ const Usuarios = () => {
           { name: 'telefono', placeholder: 'Teléfono', type: 'text', key: 'telefono', required: false, pattern: /^[0-9]*$/ }, 
           { name: 'cedula', placeholder: 'Cédula', type: 'text', key: 'cedula', required: true, pattern: /^[0-9]*$/ }, 
           { name: 'id_rol', placeholder: 'Rol', type: 'select', key: 'roleId', options: [
-              { value: 5 , label: 'Administrador' },
-              { value: 6 , label: 'empleado' }
-            ], required: true 
-          }
+              { value: 5, label: 'Administrador' },
+              { value: 6, label: 'empleado' }
+            ], required: true,
+            extraButton: isEdit ? {
+              icon: cilCog,
+              onClick: handlePermisos,
+              title: 'Gestionar Permisos',
+              className: 'btn-hover',
+              style: { 
+                minWidth: '40px',  
+                height: '40px', 
+                marginLeft: '10px'
+              }
+            } : null
+          },
         ]}
-       formData={formData}
-       isEdit={isEdit}
+        formData={formData}
+        isEdit={isEdit}
+      />
+      <Permisos
+        visible={modalPermisosVisible}
+        onClose={handleCloseModalPermisos}
+        formData={formData}
+        rolId={selectedRolId}
       />
       <CCard className="mb-4" style={{boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px'} }>
         <CCardBody>

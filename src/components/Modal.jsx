@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CButton } from '@coreui/react-pro';
 import { validation } from '../components/validation'; 
 import Select from 'react-select';
+import CIcon from '@coreui/icons-react';
 
 const Modal = ({ visible, onClose, onSubmit, campos, titulo, col, tamaño, formData, isEdit }) => {
   const [nuevoElemento, setNuevoElemento] = useState({});
@@ -23,8 +24,11 @@ const Modal = ({ visible, onClose, onSubmit, campos, titulo, col, tamaño, formD
   const schema = validation(campos, isEdit);
 
   const handleInputChange = (value, campo) => {
-    const formattedValue = campo.type === 'text' ? value.toUpperCase() : value; // Convertir a mayúsculas si es texto
-    setNuevoElemento(prev => ({ ...prev, [campo.name]: formattedValue }));
+    const formattedValue = campo.type === 'text' ? value.toUpperCase() : value;
+    setNuevoElemento(prev => ({
+      ...prev,
+      [campo.name]: formattedValue
+    }));
   };
 
   const handleSubmit = async () => {
@@ -63,16 +67,49 @@ const Modal = ({ visible, onClose, onSubmit, campos, titulo, col, tamaño, formD
             return campo.type === 'select' ? (
               <div className={`form-group ${col}`} key={campo.key}>
                 <label>{campo.placeholder}</label>
-                <Select
-                  {...commonProps}
-                  value={campo.options.find(option => option.value === nuevoElemento[campo.name]) || null} // Mostrar el valor seleccionado
-                  options={campo.options.map(option => ({
-                    value: option.value,
-                    label: option.label,
-                  }))}
-                  onChange={selectedOption => handleInputChange(selectedOption.value, campo)} // Actualizar solo el valor seleccionado
-                />
+                <div className="d-flex align-items-center">
+                  <Select
+                    {...commonProps}
+                    className="flex-grow-1"
+                    value={campo.options.find(option => option.value === nuevoElemento[campo.name]) || null}
+                    options={campo.options.map(option => ({
+                      value: option.value,
+                      label: option.label,
+                    }))}
+                    onChange={selectedOption => handleInputChange(selectedOption.value, campo)}
+                  />
+                  {campo.extraButton && (
+                    <CButton
+                      onClick={campo.extraButton.onClick}
+                      className={campo.extraButton.className}
+                      title={campo.extraButton.title}
+                      style={campo.extraButton.style}
+                    >
+                      <CIcon 
+                        icon={campo.extraButton.icon} 
+                        size='lg'
+                      />
+                    </CButton>
+                  )}
+                </div>
                 {errores[campo.name] && <div className="text-danger">{errores[campo.name]}</div>}
+              </div>
+            ) : campo.type === 'button' ? (
+              <div className={`form-group ${col}`} key={campo.key}>
+                <CButton
+                  color={campo.color }
+                  onClick={() => campo.onClick && campo.onClick(nuevoElemento)}
+                  className={`m-2 ${campo.className || ''}`}
+                  style={campo.style}
+                  title={campo.placeholder}
+                >
+                  {campo.icon && (
+                    <CIcon 
+                      icon={campo.icon}
+                      size='lg'
+                    />
+                  )}
+                </CButton>
               </div>
             ) : (
               <div className={`form-group ${col}`} key={campo.key}>
