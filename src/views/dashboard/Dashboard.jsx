@@ -12,7 +12,6 @@ const Card = ({ title, route, bg, icon, onModuleSelect }) => {
 
   const handleClick = () => {
     onModuleSelect(title);
-    navigate(route);
   };
 
   return (
@@ -81,7 +80,6 @@ const Dashboard = () => {
           [permission.id_modulo]: {
             id: permission.id_modulo,
             nombre: permission.nombre_modulo,
-            ruta: permission.ruta
           }
         }), {}));
 
@@ -94,12 +92,17 @@ const Dashboard = () => {
   };
 
   const handleModuleSelect = (moduleName) => {
-    dispatch(setActiveModule(moduleName));
+    dispatch(setActiveModule(null));
+    
+    setTimeout(() => {
+      dispatch(setActiveModule(moduleName.toUpperCase()));
+    }, 0);
   };
 
   React.useEffect(() => {
     fetchModulos();
-  }, []);
+    dispatch(setActiveModule(null));
+  }, [dispatch]);
 
   return (
     <div className="dashboard-container">
@@ -111,7 +114,6 @@ const Dashboard = () => {
             <Card
               key={modulo.id}
               title={modulo.nombre}
-              route={`/${modulo.ruta}`}
               bg={coloresPorModulo[modulo.nombre] || colorPorDefecto}
               icon={iconosPorModulo[modulo.nombre] || cilPencil}
               onModuleSelect={handleModuleSelect}

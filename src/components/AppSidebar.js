@@ -16,13 +16,19 @@ import { AppSidebarNav } from './AppSidebarNav'
 import { logo } from 'src/assets/brand/logo'
 import { sygnet } from 'src/assets/brand/sygnet'
 
-// sidebar nav config
-import navigation from '../_nav'
+// Importar createNav y las acciones del slice
+import createNav from '../_nav'
+import { set } from '../redux/slices/navigationSlice'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
-  const unfoldable = useSelector((state) => state.sidebarUnfoldable)
-  const sidebarShow = useSelector((state) => state.sidebarShow)
+  // Actualizar los selectores para usar el path correcto del estado
+  const unfoldable = useSelector((state) => state.navigation.sidebarUnfoldable)
+  const sidebarShow = useSelector((state) => state.navigation.sidebarShow)
+  const activeModule = useSelector((state) => state.navigation.activeModule)
+
+  // Crear el navigation dinámicamente basado en el módulo activo
+  const navigation = createNav(activeModule)
 
   return (
     <CSidebar
@@ -33,7 +39,7 @@ const AppSidebar = () => {
       unfoldable={unfoldable}
       visible={sidebarShow}
       onVisibleChange={(visible) => {
-        dispatch({ type: 'set', sidebarShow: visible })
+        dispatch(set({ sidebarShow: visible }))
       }}
     >
       <CSidebarHeader >
@@ -44,10 +50,10 @@ const AppSidebar = () => {
         <CCloseButton
           className="d-lg-none"
           dark
-          onClick={() => dispatch({ type: 'set', sidebarShow: false })}
+          onClick={() => dispatch(set({ sidebarShow: false }))}
         />
         <CSidebarToggler
-          onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
+          onClick={() => dispatch(set({ sidebarUnfoldable: !unfoldable }))}
         />
       </CSidebarHeader>
       <AppSidebarNav items={navigation} />

@@ -5,11 +5,20 @@ const navigationSlice = createSlice({
   initialState: {
     activeModule: null,
     sidebarShow: true,
-    sidebarUnfoldable: false
+    sidebarUnfoldable: false,
+    isDropdownOpen: false
   },
   reducers: {
     setActiveModule: (state, action) => {
-      state.activeModule = action.payload;
+      if (state.activeModule === action.payload) {
+        state.isDropdownOpen = !state.isDropdownOpen;
+      } else {
+        state.activeModule = action.payload;
+        state.isDropdownOpen = true;
+      }
+    },
+    clearActiveModule: (state) => {
+      state.activeModule = null;
     },
     set: (state, action) => {
       return { ...state, ...action.payload }
@@ -17,5 +26,5 @@ const navigationSlice = createSlice({
   },
 });
 
-export const { setActiveModule, set } = navigationSlice.actions;
+export const { setActiveModule, clearActiveModule, set } = navigationSlice.actions;
 export default navigationSlice.reducer;
