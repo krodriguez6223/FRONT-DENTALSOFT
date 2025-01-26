@@ -25,8 +25,16 @@ const iconosPorModulo = {
   'GASTOS': cilMoney,             
 }
 
+// Agregar array de submódulos a excluir
+const submodulosExcluidos = [
+  'detallecatalogo', 
+  'submodulos', 
+  'permisos'
+] 
+
 const createNav = (activeModule) => {
-  // Agregar timestamp para forzar recreación completa
+  const currentModule = activeModule || localStorage.getItem('activeModule')
+  
   const timestamp = Date.now()
   
   const baseNav = [
@@ -39,15 +47,18 @@ const createNav = (activeModule) => {
     }
   ]
 
-  // Si no hay módulo activo, solo retornar el Dashboard
-  if (!activeModule) {
+  // Si no hay módulo activo en parámetros ni localStorage, solo retornar el Dashboard
+  if (!currentModule) {
     return baseNav;
   }
+
+  // Guardar el módulo activo en localStorage
+  localStorage.setItem('activeModule', currentModule)
 
   // Obtener permisos del localStorage
   const userPermissions = getAllPermissions()
 
-  // Agrupar permisos por módulo
+  // Modificar la lógica de agrupación de permisos
   const modulePermissions = userPermissions.reduce((acc, permission) => {
     if (!acc[permission.id_modulo]) {
       acc[permission.id_modulo] = {
@@ -60,25 +71,29 @@ const createNav = (activeModule) => {
     if (permission.read && permission.nombre_submodulo) {
       const ruta = `${permission.ruta}`.toLowerCase()
       
-      const submduloExistente = acc[permission.id_modulo].submodulos.some(
-        sub => sub.name.toLowerCase() === permission.nombre_submodulo.toLowerCase()
-      )
+      // Verificar si el submódulo no está en la lista de excluidos
+      const nombreSubmódulo = permission.nombre_submodulo.toLowerCase()
+      if (!submodulosExcluidos.some(excluido => excluido.toLowerCase() === nombreSubmódulo)) {
+        const submduloExistente = acc[permission.id_modulo].submodulos.some(
+          sub => sub.name.toLowerCase() === nombreSubmódulo
+        )
 
-      if (!submduloExistente) {
-        acc[permission.id_modulo].submodulos.push({
-          component: CNavItem,
-          name: permission.nombre_submodulo.charAt(0).toUpperCase() + permission.nombre_submodulo.slice(1),
-          to: ruta,
-        })
+        if (!submduloExistente) {
+          acc[permission.id_modulo].submodulos.push({
+            component: CNavItem,
+            name: permission.nombre_submodulo.charAt(0).toUpperCase() + permission.nombre_submodulo.slice(1),
+            to: ruta,
+          })
+        }
       }
     }
 
     return acc
   }, {})
 
-  // Buscar el módulo activo
+  // Buscar el módulo activo usando currentModule en lugar de activeModule
   const moduleData = Object.values(modulePermissions).find(
-    mod => mod.nombre === activeModule
+    mod => mod.nombre === currentModule
   )
 
   // Si encontramos el módulo activo y tiene submodulos, lo agregamos al nav

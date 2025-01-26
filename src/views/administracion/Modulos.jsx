@@ -46,7 +46,7 @@ const Modulos = () => {
             const { data } = await axios.get(`/modulos/mod/${id}`);
             setDataSubmodulos(data)
         } catch (error) {
-            mostrarNotificacion('Error al cargar submodulos: ' + (error.response ? error.response.data.error : error.message), 'error');
+            setDataSubmodulos([]);
         } finally {
             setIsLoading(false);
         }

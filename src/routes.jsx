@@ -5,7 +5,7 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard.jsx'))
 import Usuarios from './views/administracion/Usuarios.jsx'
 import Roles from './views/administracion/Roles.jsx'
 import Modulos from './views/administracion/Modulos.jsx'
-
+import Catalogo from './views/administracion/Catalogo.jsx'
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -28,6 +28,11 @@ const routes = [
     path: '/administracion/modulos',
     name: 'Modulos',
     element: Modulos,
+  },
+  {
+    path: '/administracion/catalogo',
+    name: 'Catalogo',
+    element: Catalogo,
   },
 
 
