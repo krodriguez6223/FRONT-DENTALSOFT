@@ -53,7 +53,7 @@ const Modal = ({ visible, onClose, onSubmit, campos, titulo, col, tamaño, formD
 
   return (
     <CModal visible={visible} onClose={handleClose} size={modalSize} backdrop="static">
-      <CModalHeader onClose={handleClose}>
+      <CModalHeader onClose={handleClose} style={{ backgroundColor: '#0381a1',color: 'white' }}>
         <CModalTitle>{titulo}</CModalTitle>
       </CModalHeader>
       <CModalBody>
@@ -66,8 +66,7 @@ const Modal = ({ visible, onClose, onSubmit, campos, titulo, col, tamaño, formD
 
             return campo.type === 'select' ? (
               <div className={`form-group ${col}`} key={campo.key}>
-                <label>{campo.placeholder}</label>
-                <div className="d-flex align-items-center">
+                <div className="d-flex align-items-center mt-2" style={{ marginLeft: '10px' }}>
                   <Select
                     {...commonProps}
                     className="flex-grow-1"
@@ -113,14 +112,19 @@ const Modal = ({ visible, onClose, onSubmit, campos, titulo, col, tamaño, formD
               </div>
             ) : (
               <div className={`form-group ${col}`} key={campo.key}>
-                <label>{campo.placeholder}</label>
-                <input
-                  type={campo.type}
-                  {...commonProps}
-                  value={nuevoElemento[campo.name] || ''}
-                  onChange={e => handleInputChange(e.target.value, campo)}
-                />
-                {errores[campo.name] && <div className="text-danger">{errores[campo.name]}</div>}
+                <div className="floating-label-group">
+                  <input
+                    type={campo.type}
+                    {...commonProps}
+                    value={nuevoElemento[campo.name] || ''}
+                    onChange={e => handleInputChange(e.target.value, campo)}
+                    placeholder=" "
+                  />
+                  <label className={nuevoElemento[campo.name] ? 'floating' : ''}>
+                    {campo.placeholder}
+                  </label>
+                  {errores[campo.name] && <div className="text-danger">{errores[campo.name]}</div>}
+                </div>
               </div>
             );
           })}

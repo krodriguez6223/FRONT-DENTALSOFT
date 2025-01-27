@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import CIcon from "@coreui/icons-react";
-import { cilPencil, cilSettings, cilWallet, cilBasket, cilCart, cilCalendar, cilDollar, cilMoney } from "@coreui/icons";
+import { cilPencil, cilSettings, cilWallet, cilBasket, cilCart, cilCalendar, cilDollar, cilMoney, cilSmile } from "@coreui/icons";
 import { getAllPermissions } from '../../middlewares/permissions';
 import { useDispatch } from 'react-redux';
 import { setActiveModule } from '../../redux/slices/navigationSlice';
@@ -64,7 +64,8 @@ const Dashboard = () => {
     'VENTAS': cilCart,              
     'AGENDAMIENTO': cilCalendar,    
     'COMPRAS': cilDollar,           
-    'GASTOS': cilMoney,             
+    'GASTOS': cilMoney, 
+    'ODONTOLOGICO': cilSmile,            
   };
 
   

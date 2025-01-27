@@ -9,7 +9,8 @@ import {
   cilCalendar, 
   cilDollar, 
   cilMoney,
-  cilPencil 
+  cilPencil,
+  cilSmile
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react-pro'
 import { getAllPermissions } from './middlewares/permissions'
@@ -22,7 +23,8 @@ const iconosPorModulo = {
   'VENTAS': cilCart,              
   'AGENDAMIENTO': cilCalendar,    
   'COMPRAS': cilDollar,           
-  'GASTOS': cilMoney,             
+  'GASTOS': cilMoney,
+  'ODONTOLOGICO': cilSmile             
 }
 
 // Agregar array de submódulos a excluir
